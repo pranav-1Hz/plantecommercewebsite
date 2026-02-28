@@ -1,6 +1,7 @@
 {
   "short_name": "Plants & Home",
-  "name": "Create React App Sample",
+  "name": "Plants & Home",
+  "author": "Pranav",
   "icons": [
     {
       "src": "/android-icon-36x36.png",
