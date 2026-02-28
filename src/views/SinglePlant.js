@@ -54,8 +54,8 @@ const StyledDeteailsWrapper = styled.div`
       display: none;
     }
     /* Hide scrollbar for IE, Edge and Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 `;
 
@@ -191,15 +191,21 @@ class SinglePlant extends React.Component {
                   {plant.fertilizer ? (
                     <>
                       <strong style={{ display: 'block' }}>Fertilizer Schedule:</strong>
-                      <p style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>{plant.fertilizer}</p>
+                      <p style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                        {plant.fertilizer}
+                      </p>
                     </>
-                  ) : <p>Standard houseplant fertilizer recommended.</p>}
+                  ) : (
+                    <p>Standard houseplant fertilizer recommended.</p>
+                  )}
 
                   {plant.nutrients && (
                     <>
                       <strong>Primary Nutrients:</strong>
                       <ul style={{ marginLeft: '2rem', marginTop: '0.5rem' }}>
-                        {plant.nutrients.split(',').map((nut, index) => <li key={index}>{nut.trim()}</li>)}
+                        {plant.nutrients.split(',').map((nut, index) => (
+                          <li key={index}>{nut.trim()}</li>
+                        ))}
                       </ul>
                     </>
                   )}
@@ -209,22 +215,48 @@ class SinglePlant extends React.Component {
               <Accordion title="📋 Specifications">
                 <Text main>
                   <div style={{ display: 'grid', gap: '1rem' }}>
-                    <div><strong>Mature Size:</strong> {plant.size || 'Varies'}</div>
-                    <div><strong>Sunlight:</strong> {plant.sunlight || 'Indirect light'}</div>
-                    <div><strong>Water Needs:</strong> {plant.water || 'Check soil weekly'}</div>
-                    <div><strong>Soil Type:</strong> {plant.soil || 'Potting mix'}</div>
-                    <div><strong>Temperature:</strong> {plant.temperature || 'Average home temp'}</div>
-                    <div><strong>Humidity:</strong> {plant.humidity || 'Average'}</div>
+                    <div>
+                      <strong>Mature Size:</strong> {plant.size || 'Varies'}
+                    </div>
+                    <div>
+                      <strong>Sunlight:</strong> {plant.sunlight || 'Indirect light'}
+                    </div>
+                    <div>
+                      <strong>Water Needs:</strong> {plant.water || 'Check soil weekly'}
+                    </div>
+                    <div>
+                      <strong>Soil Type:</strong> {plant.soil || 'Potting mix'}
+                    </div>
+                    <div>
+                      <strong>Temperature:</strong> {plant.temperature || 'Average home temp'}
+                    </div>
+                    <div>
+                      <strong>Humidity:</strong> {plant.humidity || 'Average'}
+                    </div>
                   </div>
                 </Text>
               </Accordion>
 
               <Accordion title="ℹ️ More Details">
                 <Text main>
-                  {plant.origin && <p><strong>Origin:</strong> {plant.origin}</p>}
-                  {plant.petSafe && <p style={{ marginTop: '1rem' }}><strong>Pet Safe:</strong> {plant.petSafe}</p>}
-                  {plant.commonIssues && <p style={{ marginTop: '1rem' }}><strong>Common Issues:</strong> {plant.commonIssues}</p>}
-                  {!plant.origin && !plant.petSafe && !plant.commonIssues && <p>No additional details available.</p>}
+                  {plant.origin && (
+                    <p>
+                      <strong>Origin:</strong> {plant.origin}
+                    </p>
+                  )}
+                  {plant.petSafe && (
+                    <p style={{ marginTop: '1rem' }}>
+                      <strong>Pet Safe:</strong> {plant.petSafe}
+                    </p>
+                  )}
+                  {plant.commonIssues && (
+                    <p style={{ marginTop: '1rem' }}>
+                      <strong>Common Issues:</strong> {plant.commonIssues}
+                    </p>
+                  )}
+                  {!plant.origin && !plant.petSafe && !plant.commonIssues && (
+                    <p>No additional details available.</p>
+                  )}
                 </Text>
               </Accordion>
 

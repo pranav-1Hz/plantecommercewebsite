@@ -55,7 +55,12 @@ const CartProduct = ({ plant }) => {
   return (
     <StyledWrapper>
       <StyledProductImage>
-        <img src={typeof plantImage === 'string' ? plantImage : (plantImage?.url || plantImage?.title || '')} alt={plantTitle} />
+        <img
+          src={
+            typeof plantImage === 'string' ? plantImage : plantImage?.url || plantImage?.title || ''
+          }
+          alt={plantTitle}
+        />
       </StyledProductImage>
       <StyledInfoWrapper>
         <StyledTitle>{plantTitle}</StyledTitle>

@@ -37,37 +37,44 @@ const TrackingBox = styled.div`
 `;
 
 const OrderSuccess = () => {
-    // Generate a random tracking number
-    const trackingNumber = Math.floor(1000000000 + Math.random() * 9000000000);
+  // Generate a random tracking number
+  const trackingNumber = Math.floor(1000000000 + Math.random() * 9000000000);
 
-    return (
-        <>
-            <Header />
-            <StyledWrapper>
-                <StyledContent>
-                    <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-                    <Heading main>Payment Successful!</Heading>
-                    <Text main style={{ marginTop: '1rem' }}>
-                        Thank you for your order. Your plants are getting ready for their new home!
-                    </Text>
+  return (
+    <>
+      <Header />
+      <StyledWrapper>
+        <StyledContent>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+          <Heading main>Payment Successful!</Heading>
+          <Text main style={{ marginTop: '1rem' }}>
+            Thank you for your order. Your plants are getting ready for their new home!
+          </Text>
 
-                    <TrackingBox>
-                        <Text main style={{ fontWeight: 'bold' }}>Order Tracking Status:</Text>
-                        <Text main style={{ color: 'hsla(152, 94%, 33%, 1)', fontSize: '1.5rem', margin: '1rem 0' }}>
-                            Processing
-                        </Text>
-                        <Text main>Tracking ID: <strong>#{trackingNumber}</strong></Text>
-                    </TrackingBox>
+          <TrackingBox>
+            <Text main style={{ fontWeight: 'bold' }}>
+              Order Tracking Status:
+            </Text>
+            <Text
+              main
+              style={{ color: 'hsla(152, 94%, 33%, 1)', fontSize: '1.5rem', margin: '1rem 0' }}
+            >
+              Processing
+            </Text>
+            <Text main>
+              Tracking ID: <strong>#{trackingNumber}</strong>
+            </Text>
+          </TrackingBox>
 
-                    <Link to="/" style={{ textDecoration: 'none' }}>
-                        <Button secondary style={{ marginTop: '2rem' }}>
-                            Continue Shopping
-                        </Button>
-                    </Link>
-                </StyledContent>
-            </StyledWrapper>
-        </>
-    );
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <Button secondary style={{ marginTop: '2rem' }}>
+              Continue Shopping
+            </Button>
+          </Link>
+        </StyledContent>
+      </StyledWrapper>
+    </>
+  );
 };
 
 export default OrderSuccess;

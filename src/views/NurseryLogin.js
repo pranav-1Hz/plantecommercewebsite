@@ -79,8 +79,12 @@ const inputStyles = css`
   }
 `;
 
-const StyledInput = styled(Input)`${inputStyles}`;
-const StyledPasswordInput = styled(PasswordInput)`${inputStyles}`;
+const StyledInput = styled(Input)`
+  ${inputStyles}
+`;
+const StyledPasswordInput = styled(PasswordInput)`
+  ${inputStyles}
+`;
 
 const StyledInputLabelWrapper = styled.div`
   display: flex;
@@ -117,7 +121,8 @@ const NurseryLogin = () => {
   const [password, setPassword] = useState('');
 
   const handleSignin = () => {
-    fire.auth()
+    fire
+      .auth()
       .signInNursery(email, password)
       .then(() => {
         window.location.href = '/nursery';
@@ -141,7 +146,7 @@ const NurseryLogin = () => {
             <StyledInput
               name="email"
               placeholder="Nursery Email"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               ref={register({ required: true })}
             />
             <StyledLabel>Nursery Email</StyledLabel>
@@ -152,7 +157,7 @@ const NurseryLogin = () => {
             <StyledPasswordInput
               name="password"
               placeholder="Password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               ref={register({ required: true })}
             />
             <StyledLabel>Password</StyledLabel>
@@ -164,7 +169,15 @@ const NurseryLogin = () => {
           </Button>
         </StyledForm>
 
-        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        <div
+          style={{
+            marginTop: '2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            alignItems: 'center',
+          }}
+        >
           <Button
             simple
             onClick={() => routerHistory.push('/nursery-register')}

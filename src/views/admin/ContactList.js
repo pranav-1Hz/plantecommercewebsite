@@ -6,7 +6,10 @@ import Heading from '../../components/atoms/Heading/Heading';
 const API_BASE = 'http://localhost:5000/api';
 
 /* ─── Styles ──────────────────────────────────────────────── */
-const Wrapper = styled.div`max-width: 1100px; width: 100%;`;
+const Wrapper = styled.div`
+  max-width: 1100px;
+  width: 100%;
+`;
 
 const PageHeader = styled.div`
   display: flex;
@@ -28,20 +31,26 @@ const StatPill = styled.div`
   background: white;
   border-radius: 10px;
   padding: 1.2rem 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   gap: 1rem;
   font-size: 1rem;
   color: #555;
-  span.val { font-size: 1.8rem; font-weight: 700; color: #222; }
-  span.icon { font-size: 1.6rem; }
+  span.val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #222;
+  }
+  span.icon {
+    font-size: 1.6rem;
+  }
 `;
 
 const TableWrapper = styled.div`
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 `;
 
@@ -64,8 +73,12 @@ const StyledTable = styled.table`
     font-size: 0.95rem;
     vertical-align: top;
   }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #fafff8; }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: #fafff8;
+  }
 `;
 
 const SubjectBadge = styled.span`
@@ -97,16 +110,23 @@ const DeleteBtn = styled.button`
   background: hsla(0, 80%, 50%, 0.1);
   color: #c62828;
   transition: opacity 0.18s, transform 0.12s, background 0.2s;
-  &:hover { 
+  &:hover {
     background: hsla(0, 80%, 50%, 0.18);
-    opacity: 0.85; 
-    transform: translateY(-1px); 
+    opacity: 0.85;
+    transform: translateY(-1px);
   }
-  &:active { transform: translateY(0); }
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 const EmptyRow = styled.tr`
-  td { text-align: center; color: #aaa; padding: 3rem; font-size: 1.1rem; }
+  td {
+    text-align: center;
+    color: #aaa;
+    padding: 3rem;
+    font-size: 1.1rem;
+  }
 `;
 
 const ErrorMsg = styled.p`
@@ -119,114 +139,126 @@ const ErrorMsg = styled.p`
 
 /* ─── Component ───────────────────────────────────────────── */
 const ContactList = () => {
-    const [messages, setMessages] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    const fetchMessages = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const res = await fetch(`${API_BASE}/contact`);
-            if (!res.ok) throw new Error('Failed to load messages');
-            const data = await res.json();
-            setMessages(data);
-        } catch (err) {
-            setError(
-                err.message === 'Failed to fetch'
-                    ? 'Cannot reach the server. Make sure the backend is running.'
-                    : err.message
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchMessages = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE}/contact`);
+      if (!res.ok) throw new Error('Failed to load messages');
+      const data = await res.json();
+      setMessages(data);
+    } catch (err) {
+      setError(
+        err.message === 'Failed to fetch'
+          ? 'Cannot reach the server. Make sure the backend is running.'
+          : err.message,
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => { fetchMessages(); }, []);
+  useEffect(() => {
+    fetchMessages();
+  }, []);
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Delete this message?')) return;
-        try {
-            await fetch(`${API_BASE}/contact/${id}`, { method: 'DELETE' });
-            setMessages(prev => prev.filter(m => m.id !== id));
-        } catch (err) {
-            alert('Delete failed: ' + err.message);
-        }
-    };
+  const handleDelete = async id => {
+    if (!window.confirm('Delete this message?')) return;
+    try {
+      await fetch(`${API_BASE}/contact/${id}`, { method: 'DELETE' });
+      setMessages(prev => prev.filter(m => m.id !== id));
+    } catch (err) {
+      alert('Delete failed: ' + err.message);
+    }
+  };
 
-    return (
-        <AdminTemplate>
-            <Wrapper>
-                <PageHeader>
-                    <Heading main>📩 Contact Messages</Heading>
-                </PageHeader>
+  return (
+    <AdminTemplate>
+      <Wrapper>
+        <PageHeader>
+          <Heading main>📩 Contact Messages</Heading>
+        </PageHeader>
 
-                <StatsRow>
-                    <StatPill>
-                        <span className="icon">📩</span>
-                        <div>
-                            <span className="val">{messages.length}</span>
-                            <div>Total Messages</div>
-                        </div>
-                    </StatPill>
-                    <StatPill>
-                        <span className="icon">📅</span>
-                        <div>
-                            <span className="val">
-                                {messages.filter(m => {
-                                    const d = new Date(m.createdAt);
-                                    const now = new Date();
-                                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                                }).length}
-                            </span>
-                            <div>This Month</div>
-                        </div>
-                    </StatPill>
-                </StatsRow>
+        <StatsRow>
+          <StatPill>
+            <span className="icon">📩</span>
+            <div>
+              <span className="val">{messages.length}</span>
+              <div>Total Messages</div>
+            </div>
+          </StatPill>
+          <StatPill>
+            <span className="icon">📅</span>
+            <div>
+              <span className="val">
+                {
+                  messages.filter(m => {
+                    const d = new Date(m.createdAt);
+                    const now = new Date();
+                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                  }).length
+                }
+              </span>
+              <div>This Month</div>
+            </div>
+          </StatPill>
+        </StatsRow>
 
-                {error && <ErrorMsg>⚠️ {error}</ErrorMsg>}
+        {error && <ErrorMsg>⚠️ {error}</ErrorMsg>}
 
-                <TableWrapper>
-                    <StyledTable>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Subject</th>
-                                <th>Message</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <EmptyRow><td colSpan="7">Loading messages…</td></EmptyRow>
-                            ) : messages.length === 0 ? (
-                                <EmptyRow><td colSpan="7">📭 No contact messages yet</td></EmptyRow>
-                            ) : (
-                                messages.map((m, idx) => (
-                                    <tr key={m.id}>
-                                        <td style={{ color: '#aaa' }}>{idx + 1}</td>
-                                        <td><strong>{m.name}</strong></td>
-                                        <td style={{ color: '#666' }}>{m.email}</td>
-                                        <td><SubjectBadge>{m.subject || '(No subject)'}</SubjectBadge></td>
-                                        <MessageCell>{m.message}</MessageCell>
-                                        <td style={{ color: '#999', whiteSpace: 'nowrap' }}>
-                                            {new Date(m.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td>
-                                            <DeleteBtn onClick={() => handleDelete(m.id)}>🗑️ Delete</DeleteBtn>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </StyledTable>
-                </TableWrapper>
-            </Wrapper>
-        </AdminTemplate>
-    );
+        <TableWrapper>
+          <StyledTable>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <EmptyRow>
+                  <td colSpan="7">Loading messages…</td>
+                </EmptyRow>
+              ) : messages.length === 0 ? (
+                <EmptyRow>
+                  <td colSpan="7">📭 No contact messages yet</td>
+                </EmptyRow>
+              ) : (
+                messages.map((m, idx) => (
+                  <tr key={m.id}>
+                    <td style={{ color: '#aaa' }}>{idx + 1}</td>
+                    <td>
+                      <strong>{m.name}</strong>
+                    </td>
+                    <td style={{ color: '#666' }}>{m.email}</td>
+                    <td>
+                      <SubjectBadge>{m.subject || '(No subject)'}</SubjectBadge>
+                    </td>
+                    <MessageCell>{m.message}</MessageCell>
+                    <td style={{ color: '#999', whiteSpace: 'nowrap' }}>
+                      {new Date(m.createdAt).toLocaleDateString()}
+                    </td>
+                    <td>
+                      <DeleteBtn onClick={() => handleDelete(m.id)}>🗑️ Delete</DeleteBtn>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </StyledTable>
+        </TableWrapper>
+      </Wrapper>
+    </AdminTemplate>
+  );
 };
 
 export default ContactList;

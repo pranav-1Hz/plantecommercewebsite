@@ -83,7 +83,7 @@ const StyledRoleButton = styled.button`
   cursor: pointer;
   margin-bottom: 0.5rem;
   font-weight: bold;
-  
+
   &:hover {
     background: ${({ theme }) => theme.primaryColor};
     color: white;
@@ -102,40 +102,48 @@ const AdminSidebar = () => {
   return (
     <StyledSidebar>
       <StyledLogo>
-        <StyledLogoText>
-          {isNurseryMode ? '🏡 Nursery Panel' : '🌿 Admin Panel'}
-        </StyledLogoText>
+        <StyledLogoText>{isNurseryMode ? '🏡 Nursery Panel' : '🌿 Admin Panel'}</StyledLogoText>
       </StyledLogo>
       <StyledNav>
         {!isNurseryMode ? (
           <>
             <StyledNavLink to="/admin">
               <StyledIcon>
-                <span role="img" aria-label="dashboard">📊</span>
+                <span role="img" aria-label="dashboard">
+                  📊
+                </span>
               </StyledIcon>
               Dashboard
             </StyledNavLink>
             <StyledNavLink to="/admin/nurseries">
               <StyledIcon>
-                <span role="img" aria-label="nurseries">🏪</span>
+                <span role="img" aria-label="nurseries">
+                  🏪
+                </span>
               </StyledIcon>
               Nursery Approvals
             </StyledNavLink>
             <StyledNavLink to="/admin/plants">
               <StyledIcon>
-                <span role="img" aria-label="plants">🌱</span>
+                <span role="img" aria-label="plants">
+                  🌱
+                </span>
               </StyledIcon>
               Manage All Plants
             </StyledNavLink>
             <StyledNavLink to="/admin/feedback">
               <StyledIcon>
-                <span role="img" aria-label="feedback">💬</span>
+                <span role="img" aria-label="feedback">
+                  💬
+                </span>
               </StyledIcon>
               Feedback
             </StyledNavLink>
             <StyledNavLink to="/admin/contact">
               <StyledIcon>
-                <span role="img" aria-label="contact">📩</span>
+                <span role="img" aria-label="contact">
+                  📩
+                </span>
               </StyledIcon>
               Contact Messages
             </StyledNavLink>
@@ -146,13 +154,17 @@ const AdminSidebar = () => {
               <>
                 <StyledNavLink to="/nursery">
                   <StyledIcon>
-                    <span role="img" aria-label="dashboard">📊</span>
+                    <span role="img" aria-label="dashboard">
+                      📊
+                    </span>
                   </StyledIcon>
                   My Dashboard
                 </StyledNavLink>
                 <StyledNavLink to="/nursery/add-plant">
                   <StyledIcon>
-                    <span role="img" aria-label="add plant">➕</span>
+                    <span role="img" aria-label="add plant">
+                      ➕
+                    </span>
                   </StyledIcon>
                   Add My Plant
                 </StyledNavLink>
@@ -163,7 +175,9 @@ const AdminSidebar = () => {
 
         <StyledNavLink to="/">
           <StyledIcon>
-            <span role="img" aria-label="home">🏠</span>
+            <span role="img" aria-label="home">
+              🏠
+            </span>
           </StyledIcon>
           Back to Shop
         </StyledNavLink>

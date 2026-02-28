@@ -46,35 +46,35 @@ const StyledAccordionContent = styled.div`
 `;
 
 const Accordion = ({ title, children, defaultOpen = false }) => {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
-    const toggleAccordion = () => {
-        setIsOpen(!isOpen);
-    };
+  const toggleAccordion = () => {
+    setIsOpen(!isOpen);
+  };
 
-    return (
-        <StyledAccordionWrapper>
-            <StyledAccordionHeader
-                onClick={toggleAccordion}
-                aria-expanded={isOpen}
-                aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${title}`}
-            >
-                {title}
-                <StyledAccordionIcon isOpen={isOpen}>▼</StyledAccordionIcon>
-            </StyledAccordionHeader>
-            <StyledAccordionContent isOpen={isOpen}>{children}</StyledAccordionContent>
-        </StyledAccordionWrapper>
-    );
+  return (
+    <StyledAccordionWrapper>
+      <StyledAccordionHeader
+        onClick={toggleAccordion}
+        aria-expanded={isOpen}
+        aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${title}`}
+      >
+        {title}
+        <StyledAccordionIcon isOpen={isOpen}>▼</StyledAccordionIcon>
+      </StyledAccordionHeader>
+      <StyledAccordionContent isOpen={isOpen}>{children}</StyledAccordionContent>
+    </StyledAccordionWrapper>
+  );
 };
 
 Accordion.propTypes = {
-    title: PropTypes.string.isRequired,
-    children: PropTypes.node.isRequired,
-    defaultOpen: PropTypes.bool,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  defaultOpen: PropTypes.bool,
 };
 
 Accordion.defaultProps = {
-    defaultOpen: false,
+  defaultOpen: false,
 };
 
 export default Accordion;

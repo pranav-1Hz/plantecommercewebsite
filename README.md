@@ -70,3 +70,7 @@ set NODE_OPTIONS=--openssl-legacy-provider && npm start
 To kill any process on port 5000:
 
 ```taskkill /F /PID 3448```
+
+## Author
+
+Developed by **Pranav**.

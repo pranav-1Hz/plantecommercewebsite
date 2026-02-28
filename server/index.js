@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 
 const path = require('path');
+
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
@@ -24,17 +25,18 @@ require('./models/Feedback');
 require('./models/Contact');
 
 // Database Connection
-sequelize.sync({ alter: true })
-    .then(() => console.log('MySQL Connected'))
-    .catch(err => console.log('Sequelize Sync Error: ', err));
+sequelize
+  .sync({ alter: true })
+  .then(() => console.log('MySQL Connected'))
+  .catch(err => console.log('Sequelize Sync Error: ', err));
 
 // Routes
 app.use('/api', authRoutes);
 
 app.get('/', (req, res) => {
-    res.send('Plant Shop API Running');
+  res.send('Plant Shop API Running');
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

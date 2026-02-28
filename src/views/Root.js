@@ -46,7 +46,7 @@ class Root extends React.Component {
       const mockUser = {
         uid: 'demo-user-123',
         email: 'demo@plantshop.com',
-        displayName: 'Demo User'
+        displayName: 'Demo User',
       };
       this.setState({ user: mockUser, authLoading: false });
       localStorage.setItem('user', mockUser.uid);
@@ -76,7 +76,14 @@ class Root extends React.Component {
 
     if (authLoading) {
       return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Loader />
         </div>
       );
@@ -100,14 +107,27 @@ class Root extends React.Component {
                     <Route exact path="/admin-login" component={AdminLogin} />
 
                     {/* Protected Routes */}
-                    <Route exact path="/checkout" render={() => (user ? <Checkout /> : <Login />)} />
+                    <Route
+                      exact
+                      path="/checkout"
+                      render={() => (user ? <Checkout /> : <Login />)}
+                    />
                     <Route exact path="/account" render={() => (user ? <Account /> : <Login />)} />
-                    <Route exact path="/success" render={() => (user ? <OrderSuccess /> : <Login />)} />
+                    <Route
+                      exact
+                      path="/success"
+                      render={() => (user ? <OrderSuccess /> : <Login />)}
+                    />
 
                     {/* Admin Routes */}
                     <AdminRoute exact path="/admin" component={Admin} user={user} />
                     <AdminRoute exact path="/admin/nurseries" component={NurseryList} user={user} />
-                    <AdminRoute exact path="/admin/plants" component={PlantManagement} user={user} />
+                    <AdminRoute
+                      exact
+                      path="/admin/plants"
+                      component={PlantManagement}
+                      user={user}
+                    />
                     <AdminRoute exact path="/admin/feedback" component={FeedbackList} user={user} />
                     <AdminRoute exact path="/admin/contact" component={ContactList} user={user} />
 
@@ -120,7 +140,7 @@ class Root extends React.Component {
             </MainTemplate>
           </BrowserRouter>
         </CartProvider>
-      </NurseryProvider >
+      </NurseryProvider>
     );
   }
 }

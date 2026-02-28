@@ -61,10 +61,20 @@ const Products = ({ plants }) => {
           <Product
             key={plant.plantId || plant.id}
             title={plant.plantTitle}
-            src={typeof plant.plantImage === 'string' ? plant.plantImage : plant.plantImage?.url || plant.plantImage?.title}
+            src={
+              typeof plant.plantImage === 'string'
+                ? plant.plantImage
+                : plant.plantImage?.url || plant.plantImage?.title
+            }
             slug={plant.plantSlug}
             price={plant.plantPrice}
-            nurseryName={nursery ? nursery.name : (plant.nurseryId === 1 ? 'Green Thumb Gardens' : 'Plant Shop Admin')}
+            nurseryName={
+              nursery
+                ? nursery.name
+                : plant.nurseryId === 1
+                ? 'Green Thumb Gardens'
+                : 'Plant Shop Admin'
+            }
           />
         );
       })}

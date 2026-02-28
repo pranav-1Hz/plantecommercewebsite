@@ -94,9 +94,7 @@ const RatingButton = styled.button`
   font-size: 1.1rem;
   font-family: inherit;
   border-radius: 4px;
-  border: 2px solid
-    ${({ selected, theme }) =>
-    selected ? theme.fontColorPrimary : 'transparent'};
+  border: 2px solid ${({ selected, theme }) => (selected ? theme.fontColorPrimary : 'transparent')};
   background-color: ${({ selected, theme }) =>
     selected ? theme.primaryColor : theme.secondaryColor};
   cursor: pointer;
@@ -118,8 +116,13 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: opacity 0.2s;
-  &:hover { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    opacity: 0.85;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorMsg = styled.p`
@@ -130,8 +133,14 @@ const ErrorMsg = styled.p`
   border-radius: 4px;
 `;
 
-const SuccessCard = styled.div`text-align: center; padding: 3rem 2rem;`;
-const SuccessEmoji = styled.div`font-size: 4rem; margin-bottom: 1rem;`;
+const SuccessCard = styled.div`
+  text-align: center;
+  padding: 3rem 2rem;
+`;
+const SuccessEmoji = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1rem;
+`;
 const SuccessMsg = styled.p`
   color: ${({ theme }) => theme.fontColorPrimary};
   font-size: 1.3rem;
@@ -161,13 +170,16 @@ const Feedback = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!form.rating) { setError('Please select a star rating.'); return; }
+    if (!form.rating) {
+      setError('Please select a star rating.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
@@ -183,7 +195,7 @@ const Feedback = () => {
       setError(
         err.message === 'Failed to fetch'
           ? 'Cannot reach the server. Please make sure the backend is running.'
-          : err.message
+          : err.message,
       );
     } finally {
       setLoading(false);
@@ -196,8 +208,7 @@ const Feedback = () => {
       <Main>
         <StyledHeading main>Share Your Feedback</StyledHeading>
         <Text main style={{ textAlign: 'center', maxWidth: '500px' }}>
-          We love hearing from our plant community. Tell us how we can improve
-          your experience!
+          We love hearing from our plant community. Tell us how we can improve your experience!
         </Text>
 
         <Card>
@@ -206,8 +217,8 @@ const Feedback = () => {
               <SuccessEmoji>🌿</SuccessEmoji>
               <StyledHeading main>Thank you!</StyledHeading>
               <SuccessMsg>
-                Your feedback helps us grow. We truly appreciate you taking the
-                time to share your thoughts.
+                Your feedback helps us grow. We truly appreciate you taking the time to share your
+                thoughts.
               </SuccessMsg>
               <BackLink href="/">← Back to Home</BackLink>
             </SuccessCard>
@@ -244,14 +255,15 @@ const Feedback = () => {
               <div>
                 <Label>Overall Rating</Label>
                 <RatingRow>
-                  {RATINGS.map((star) => (
+                  {RATINGS.map(star => (
                     <RatingButton
                       key={star}
                       type="button"
                       selected={form.rating === star}
                       onClick={() => setForm({ ...form, rating: star })}
                     >
-                      {'★'.repeat(star)}{'☆'.repeat(5 - star)}
+                      {'★'.repeat(star)}
+                      {'☆'.repeat(5 - star)}
                     </RatingButton>
                   ))}
                 </RatingRow>

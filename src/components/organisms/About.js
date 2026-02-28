@@ -16,14 +16,16 @@ const ContentWrapper = styled.div`
 `;
 
 const About = () => (
-    <StyledWrapper>
-        <ContentWrapper>
-            <StyledHeading main>About Us</StyledHeading>
-            <Text main style={{ textAlign: 'center' }}>
-                We are passionate about bringing nature into your home. Our carefully curated collection of plants is designed to transform your living space into a green sanctuary. Whether you are a seasoned plant parent or just starting your journey, we have something for everyone.
-            </Text>
-        </ContentWrapper>
-    </StyledWrapper>
+  <StyledWrapper>
+    <ContentWrapper>
+      <StyledHeading main>About Us</StyledHeading>
+      <Text main style={{ textAlign: 'center' }}>
+        We are passionate about bringing nature into your home. Our carefully curated collection of
+        plants is designed to transform your living space into a green sanctuary. Whether you are a
+        seasoned plant parent or just starting your journey, we have something for everyone.
+      </Text>
+    </ContentWrapper>
+  </StyledWrapper>
 );
 
 export default About;

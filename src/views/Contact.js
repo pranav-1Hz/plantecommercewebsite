@@ -49,7 +49,9 @@ const InfoItem = styled.div`
   gap: 0.4rem;
 `;
 
-const InfoIcon = styled.span`font-size: 1.8rem;`;
+const InfoIcon = styled.span`
+  font-size: 1.8rem;
+`;
 const InfoLabel = styled.p`
   font-size: 0.9rem;
   color: ${({ theme }) => theme.fontColorText};
@@ -95,7 +97,9 @@ const StyledInput = styled.input`
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
-  &:focus { border-color: ${({ theme }) => theme.fontColorPrimary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
 `;
 
 const StyledTextarea = styled.textarea`
@@ -111,7 +115,9 @@ const StyledTextarea = styled.textarea`
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
-  &:focus { border-color: ${({ theme }) => theme.fontColorPrimary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -126,8 +132,13 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: opacity 0.2s;
-  &:hover { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    opacity: 0.85;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorMsg = styled.p`
@@ -138,8 +149,14 @@ const ErrorMsg = styled.p`
   border-radius: 4px;
 `;
 
-const SuccessCard = styled.div`text-align: center; padding: 3rem 2rem;`;
-const SuccessEmoji = styled.div`font-size: 4rem; margin-bottom: 1rem;`;
+const SuccessCard = styled.div`
+  text-align: center;
+  padding: 3rem 2rem;
+`;
+const SuccessEmoji = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1rem;
+`;
 const SuccessMsg = styled.p`
   color: ${({ theme }) => theme.fontColorPrimary};
   font-size: 1.3rem;
@@ -161,9 +178,9 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -180,7 +197,7 @@ const Contact = () => {
       setError(
         err.message === 'Failed to fetch'
           ? 'Cannot reach the server. Please make sure the backend is running.'
-          : err.message
+          : err.message,
       );
     } finally {
       setLoading(false);
@@ -193,8 +210,8 @@ const Contact = () => {
       <Main>
         <StyledHeading main>Contact Us</StyledHeading>
         <Text main style={{ textAlign: 'center', maxWidth: '500px' }}>
-          We&apos;d love to hear from you. Send us a message and we will get back
-          to you as soon as possible.
+          We&apos;d love to hear from you. Send us a message and we will get back to you as soon as
+          possible.
         </Text>
 
         <Card>
@@ -235,33 +252,47 @@ const Contact = () => {
                 <div>
                   <Label htmlFor="ct-name">Your Name</Label>
                   <StyledInput
-                    id="ct-name" type="text" name="name"
-                    placeholder="Jane Doe" value={form.name}
-                    onChange={handleChange} required
+                    id="ct-name"
+                    type="text"
+                    name="name"
+                    placeholder="Jane Doe"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div>
                   <Label htmlFor="ct-email">Email Address</Label>
                   <StyledInput
-                    id="ct-email" type="email" name="email"
-                    placeholder="jane@example.com" value={form.email}
-                    onChange={handleChange} required
+                    id="ct-email"
+                    type="email"
+                    name="email"
+                    placeholder="jane@example.com"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div>
                   <Label htmlFor="ct-subject">Subject</Label>
                   <StyledInput
-                    id="ct-subject" type="text" name="subject"
-                    placeholder="How can we help?" value={form.subject}
+                    id="ct-subject"
+                    type="text"
+                    name="subject"
+                    placeholder="How can we help?"
+                    value={form.subject}
                     onChange={handleChange}
                   />
                 </div>
                 <div>
                   <Label htmlFor="ct-message">Message</Label>
                   <StyledTextarea
-                    id="ct-message" name="message"
-                    placeholder="Tell us more..." value={form.message}
-                    onChange={handleChange} required
+                    id="ct-message"
+                    name="message"
+                    placeholder="Tell us more..."
+                    value={form.message}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <SubmitButton type="submit" disabled={loading}>

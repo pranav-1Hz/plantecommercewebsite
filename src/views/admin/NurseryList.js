@@ -75,20 +75,29 @@ const ActionBtn = styled.button`
   border-radius: 6px;
   cursor: pointer;
   transition: opacity 0.18s, transform 0.12s;
-  &:hover { opacity: 0.85; transform: translateY(-1px); }
-  &:active { transform: translateY(0); }
+  &:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 const EditBtn = styled(ActionBtn)`
   background: hsla(152, 94%, 33%, 0.12);
   color: ${({ theme }) => theme.fontColorPrimary};
-  &:hover { background: hsla(152, 94%, 33%, 0.22); }
+  &:hover {
+    background: hsla(152, 94%, 33%, 0.22);
+  }
 `;
 
 const DeleteBtn = styled(ActionBtn)`
   background: hsla(0, 80%, 50%, 0.1);
   color: #c62828;
-  &:hover { background: hsla(0, 80%, 50%, 0.18); }
+  &:hover {
+    background: hsla(0, 80%, 50%, 0.18);
+  }
 `;
 
 const StyledActions = styled.div`
@@ -138,189 +147,187 @@ const StatusBadge = styled.span`
   font-size: 0.82rem;
   font-weight: 600;
   background: ${({ status }) =>
-        status === 'approved' ? '#e6f4ea' :
-            status === 'pending' ? '#fef7e0' : '#fce8e6'};
+    status === 'approved' ? '#e6f4ea' : status === 'pending' ? '#fef7e0' : '#fce8e6'};
   color: ${({ status }) =>
-        status === 'approved' ? '#1e7e34' :
-            status === 'pending' ? '#b08800' : '#c62828'};
+    status === 'approved' ? '#1e7e34' : status === 'pending' ? '#b08800' : '#c62828'};
 `;
 
 const EMPTY_FORM = { name: '', location: '', contact: '', image: '' };
 
 const NurseryList = () => {
-    const { nurseries, addNursery, removeNursery, editNursery } = useContext(NurseryContext);
-    const [showForm, setShowForm] = useState(false);
-    const [editingNursery, setEditingNursery] = useState(null); // nursery object being edited
-    const [formData, setFormData] = useState(EMPTY_FORM);
+  const { nurseries, addNursery, removeNursery, editNursery } = useContext(NurseryContext);
+  const [showForm, setShowForm] = useState(false);
+  const [editingNursery, setEditingNursery] = useState(null); // nursery object being edited
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    const openAddForm = () => {
-        setEditingNursery(null);
-        setFormData(EMPTY_FORM);
-        setShowForm(true);
-    };
+  const openAddForm = () => {
+    setEditingNursery(null);
+    setFormData(EMPTY_FORM);
+    setShowForm(true);
+  };
 
-    const openEditForm = (nursery) => {
-        setEditingNursery(nursery);
-        setFormData({
-            name: nursery.name || '',
-            location: nursery.location || '',
-            contact: nursery.contact || '',
-            image: nursery.image || '',
+  const openEditForm = nursery => {
+    setEditingNursery(nursery);
+    setFormData({
+      name: nursery.name || '',
+      location: nursery.location || '',
+      contact: nursery.contact || '',
+      image: nursery.image || '',
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingNursery(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!formData.name || !formData.location) return;
+
+    if (editingNursery) {
+      // Update existing nursery
+      const updated = {
+        ...editingNursery,
+        name: formData.name,
+        location: formData.location,
+        contact: formData.contact,
+        image: formData.image || editingNursery.image,
+      };
+      editNursery(updated); // update local state immediately
+
+      // Persist to backend
+      try {
+        await fetch(`${API_BASE}/nurseries/${editingNursery.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
         });
-        setShowForm(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+      } catch (err) {
+        console.error('Failed to update nursery on server:', err);
+      }
+    } else {
+      // Add new nursery
+      addNursery({
+        ...formData,
+        image:
+          formData.image ||
+          'https://images.unsplash.com/photo-1416879741262-eb65b2069cb7?ixid=MXwxMjA3fDB8MHxzZWFyY2h8OXx8Z2FyZGVufGVufDB8fDB8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+      });
+    }
 
-    const handleCancel = () => {
-        setShowForm(false);
-        setEditingNursery(null);
-        setFormData(EMPTY_FORM);
-    };
+    setFormData(EMPTY_FORM);
+    setEditingNursery(null);
+    setShowForm(false);
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.name || !formData.location) return;
+  return (
+    <AdminTemplate>
+      <StyledWrapper>
+        <StyledHeader>
+          <Heading main>Nursery Providers</Heading>
+          <Button onClick={showForm ? handleCancel : openAddForm}>
+            {showForm ? 'Cancel' : 'Add New Nursery'}
+          </Button>
+        </StyledHeader>
 
-        if (editingNursery) {
-            // Update existing nursery
-            const updated = {
-                ...editingNursery,
-                name: formData.name,
-                location: formData.location,
-                contact: formData.contact,
-                image: formData.image || editingNursery.image,
-            };
-            editNursery(updated); // update local state immediately
+        {showForm && (
+          <StyledForm onSubmit={handleSubmit}>
+            <Heading>
+              {editingNursery ? `✏️ Edit "${editingNursery.name}"` : 'Add New Nursery'}
+            </Heading>
+            <StyledFormGroup>
+              <StyledLabel>Nursery Name</StyledLabel>
+              <StyledInput
+                name="name"
+                placeholder="e.g. Green Valley"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
+            </StyledFormGroup>
+            <StyledFormGroup>
+              <StyledLabel>Location</StyledLabel>
+              <StyledInput
+                name="location"
+                placeholder="City, State"
+                value={formData.location}
+                onChange={handleInputChange}
+                required
+              />
+            </StyledFormGroup>
+            <StyledFormGroup>
+              <StyledLabel>Contact Email/Phone</StyledLabel>
+              <StyledInput
+                name="contact"
+                placeholder="contact@example.com"
+                value={formData.contact}
+                onChange={handleInputChange}
+              />
+            </StyledFormGroup>
+            <StyledFormGroup>
+              <StyledLabel>Image URL</StyledLabel>
+              <StyledInput
+                name="image"
+                placeholder="https://..."
+                value={formData.image}
+                onChange={handleInputChange}
+              />
+            </StyledFormGroup>
+            <FormActions>
+              <Button type="submit">{editingNursery ? 'Save Changes' : 'Create Nursery'}</Button>
+              <Button
+                type="button"
+                style={{ background: '#6c757d', color: 'white', border: 'none' }}
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            </FormActions>
+          </StyledForm>
+        )}
 
-            // Persist to backend
-            try {
-                await fetch(`${API_BASE}/nurseries/${editingNursery.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
-                });
-            } catch (err) {
-                console.error('Failed to update nursery on server:', err);
-            }
-        } else {
-            // Add new nursery
-            addNursery({
-                ...formData,
-                image: formData.image || 'https://images.unsplash.com/photo-1416879741262-eb65b2069cb7?ixid=MXwxMjA3fDB8MHxzZWFyY2h8OXx8Z2FyZGVufGVufDB8fDB8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
-            });
-        }
-
-        setFormData(EMPTY_FORM);
-        setEditingNursery(null);
-        setShowForm(false);
-    };
-
-    return (
-        <AdminTemplate>
-            <StyledWrapper>
-                <StyledHeader>
-                    <Heading main>Nursery Providers</Heading>
-                    <Button onClick={showForm ? handleCancel : openAddForm}>
-                        {showForm ? 'Cancel' : 'Add New Nursery'}
-                    </Button>
-                </StyledHeader>
-
-                {showForm && (
-                    <StyledForm onSubmit={handleSubmit}>
-                        <Heading>{editingNursery ? `✏️ Edit "${editingNursery.name}"` : 'Add New Nursery'}</Heading>
-                        <StyledFormGroup>
-                            <StyledLabel>Nursery Name</StyledLabel>
-                            <StyledInput
-                                name="name"
-                                placeholder="e.g. Green Valley"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </StyledFormGroup>
-                        <StyledFormGroup>
-                            <StyledLabel>Location</StyledLabel>
-                            <StyledInput
-                                name="location"
-                                placeholder="City, State"
-                                value={formData.location}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </StyledFormGroup>
-                        <StyledFormGroup>
-                            <StyledLabel>Contact Email/Phone</StyledLabel>
-                            <StyledInput
-                                name="contact"
-                                placeholder="contact@example.com"
-                                value={formData.contact}
-                                onChange={handleInputChange}
-                            />
-                        </StyledFormGroup>
-                        <StyledFormGroup>
-                            <StyledLabel>Image URL</StyledLabel>
-                            <StyledInput
-                                name="image"
-                                placeholder="https://..."
-                                value={formData.image}
-                                onChange={handleInputChange}
-                            />
-                        </StyledFormGroup>
-                        <FormActions>
-                            <Button type="submit">
-                                {editingNursery ? 'Save Changes' : 'Create Nursery'}
-                            </Button>
-                            <Button
-                                type="button"
-                                style={{ background: '#6c757d', color: 'white', border: 'none' }}
-                                onClick={handleCancel}
-                            >
-                                Cancel
-                            </Button>
-                        </FormActions>
-                    </StyledForm>
-                )}
-
-                <StyledGrid>
-                    {nurseries.map((nursery) => (
-                        <StyledCard key={nursery.id}>
-                            <StyledCardImage image={nursery.image} />
-                            <StyledCardContent>
-                                <StyledCardTitle>{nursery.name}</StyledCardTitle>
-                                <StyledInfo>📍 {nursery.location}</StyledInfo>
-                                <StyledInfo>📧 {nursery.contact}</StyledInfo>
-                                <StatusBadge status={nursery.status || 'pending'}>
-                                    {nursery.status || 'pending'}
-                                </StatusBadge>
-                                <StyledActions>
-                                    <EditBtn onClick={() => openEditForm(nursery)}>
-                                        ✏️ Edit
-                                    </EditBtn>
-                                    <DeleteBtn
-                                        onClick={() => {
-                                            if (window.confirm(`Delete "${nursery.name}"?`)) {
-                                                removeNursery(nursery.id);
-                                            }
-                                        }}
-                                    >
-                                        🗑️ Delete
-                                    </DeleteBtn>
-                                </StyledActions>
-                            </StyledCardContent>
-                        </StyledCard>
-                    ))}
-                    {nurseries.length === 0 && (
-                        <p style={{ color: '#888', gridColumn: '1/-1' }}>No nurseries found.</p>
-                    )}
-                </StyledGrid>
-            </StyledWrapper>
-        </AdminTemplate>
-    );
+        <StyledGrid>
+          {nurseries.map(nursery => (
+            <StyledCard key={nursery.id}>
+              <StyledCardImage image={nursery.image} />
+              <StyledCardContent>
+                <StyledCardTitle>{nursery.name}</StyledCardTitle>
+                <StyledInfo>📍 {nursery.location}</StyledInfo>
+                <StyledInfo>📧 {nursery.contact}</StyledInfo>
+                <StatusBadge status={nursery.status || 'pending'}>
+                  {nursery.status || 'pending'}
+                </StatusBadge>
+                <StyledActions>
+                  <EditBtn onClick={() => openEditForm(nursery)}>✏️ Edit</EditBtn>
+                  <DeleteBtn
+                    onClick={() => {
+                      if (window.confirm(`Delete "${nursery.name}"?`)) {
+                        removeNursery(nursery.id);
+                      }
+                    }}
+                  >
+                    🗑️ Delete
+                  </DeleteBtn>
+                </StyledActions>
+              </StyledCardContent>
+            </StyledCard>
+          ))}
+          {nurseries.length === 0 && (
+            <p style={{ color: '#888', gridColumn: '1/-1' }}>No nurseries found.</p>
+          )}
+        </StyledGrid>
+      </StyledWrapper>
+    </AdminTemplate>
+  );
 };
 
 export default NurseryList;

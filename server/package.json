@@ -2,6 +2,7 @@
     "name": "plantshop-server",
     "version": "1.0.0",
     "description": "Backend for Plant Shop",
+    "author": "Pranav",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",

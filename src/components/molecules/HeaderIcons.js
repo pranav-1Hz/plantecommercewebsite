@@ -49,7 +49,11 @@ const HeaderIcons = ({ isSinglePlant }) => {
       )}
       {user ? (
         <>
-          <StyledLink to={user.role === 'admin' ? '/admin' : user.role === 'nursery' ? '/nursery' : '/account'}>
+          <StyledLink
+            to={
+              user.role === 'admin' ? '/admin' : user.role === 'nursery' ? '/nursery' : '/account'
+            }
+          >
             <Button logoutSinglePlant aria-label={user.role === 'user' ? 'Account' : 'Dashboard'}>
               {user.role === 'user' ? 'Account' : 'Dashboard'}
             </Button>

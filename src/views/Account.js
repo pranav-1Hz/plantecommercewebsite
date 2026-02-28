@@ -22,53 +22,55 @@ const InfoWrapper = styled.div`
 `;
 
 const Account = () => {
-    const { user } = useContext(CartContext);
+  const { user } = useContext(CartContext);
 
-    const handlePasswordReset = () => {
-        if (user && user.email) {
-            fire.auth().sendPasswordResetEmail(user.email)
-                .then(() => {
-                    alert('Password reset email sent!');
-                })
-                .catch((error) => {
-                    console.error("Error sending password reset email: ", error);
-                    alert('Error sending password reset email.');
-                });
-        }
-    };
-
-    if (!user) {
-        return (
-            <StyledWrapper>
-                <Text>Please log in to view your account.</Text>
-            </StyledWrapper>
-        );
+  const handlePasswordReset = () => {
+    if (user && user.email) {
+      fire
+        .auth()
+        .sendPasswordResetEmail(user.email)
+        .then(() => {
+          alert('Password reset email sent!');
+        })
+        .catch(error => {
+          console.error('Error sending password reset email: ', error);
+          alert('Error sending password reset email.');
+        });
     }
+  };
 
+  if (!user) {
     return (
-        <StyledWrapper>
-            <StyledHeading main>My Account</StyledHeading>
-            <InfoWrapper>
-                <Text main style={{ textAlign: 'center' }}>
-                    <strong>Email:</strong> {user.email}
-                </Text>
-                <Text main style={{ textAlign: 'center' }}>
-                    <strong>Full Name:</strong> {user.displayName || 'Not set'}
-                </Text>
-                <Text main style={{ textAlign: 'center' }}>
-                    <strong>Phone:</strong> {user.phoneNumber || 'Not set'}
-                </Text>
-                <Text main style={{ textAlign: 'center' }}>
-                    <strong>User ID:</strong> {user.uid}
-                </Text>
-                <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
-                    <Button secondary onClick={handlePasswordReset}>
-                        Reset Password
-                    </Button>
-                </div>
-            </InfoWrapper>
-        </StyledWrapper>
+      <StyledWrapper>
+        <Text>Please log in to view your account.</Text>
+      </StyledWrapper>
     );
+  }
+
+  return (
+    <StyledWrapper>
+      <StyledHeading main>My Account</StyledHeading>
+      <InfoWrapper>
+        <Text main style={{ textAlign: 'center' }}>
+          <strong>Email:</strong> {user.email}
+        </Text>
+        <Text main style={{ textAlign: 'center' }}>
+          <strong>Full Name:</strong> {user.displayName || 'Not set'}
+        </Text>
+        <Text main style={{ textAlign: 'center' }}>
+          <strong>Phone:</strong> {user.phoneNumber || 'Not set'}
+        </Text>
+        <Text main style={{ textAlign: 'center' }}>
+          <strong>User ID:</strong> {user.uid}
+        </Text>
+        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
+          <Button secondary onClick={handlePasswordReset}>
+            Reset Password
+          </Button>
+        </div>
+      </InfoWrapper>
+    </StyledWrapper>
+  );
 };
 
 export default Account;

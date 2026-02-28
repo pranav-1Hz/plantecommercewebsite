@@ -36,12 +36,14 @@ const StyledStatCard = styled.div`
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   gap: 1.5rem;
   transition: transform 0.2s;
-  &:hover { transform: translateY(-5px); }
+  &:hover {
+    transform: translateY(-5px);
+  }
 `;
 
 const StatIcon = styled.div`
@@ -55,15 +57,25 @@ const StatIcon = styled.div`
   font-size: 1.8rem;
 `;
 
-const StatInfo = styled.div`display: flex; flex-direction: column;`;
-const StatValue = styled.h3`font-size: 2.2rem; margin: 0; color: #333;`;
-const StatLabel = styled.span`color: #777; font-size: 0.9rem;`;
+const StatInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const StatValue = styled.h3`
+  font-size: 2.2rem;
+  margin: 0;
+  color: #333;
+`;
+const StatLabel = styled.span`
+  color: #777;
+  font-size: 0.9rem;
+`;
 
 const StyledSection = styled.div`
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   margin-bottom: 3rem;
 `;
 
@@ -78,7 +90,9 @@ const ViewAllLink = styled(Link)`
   font-size: 1rem;
   color: ${({ theme }) => theme.fontColorPrimary};
   text-decoration: none;
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const StyledTable = styled.table`
@@ -100,7 +114,9 @@ const StyledTable = styled.table`
     font-size: 0.95rem;
     vertical-align: top;
   }
-  tr:last-child td { border-bottom: none; }
+  tr:last-child td {
+    border-bottom: none;
+  }
 `;
 
 const StatusBadge = styled.span`
@@ -109,11 +125,9 @@ const StatusBadge = styled.span`
   font-size: 0.85rem;
   font-weight: 600;
   background: ${props =>
-    props.status === 'approved' ? '#e6f4ea' :
-      props.status === 'pending' ? '#fef7e0' : '#fce8e6'};
+    props.status === 'approved' ? '#e6f4ea' : props.status === 'pending' ? '#fef7e0' : '#fce8e6'};
   color: ${props =>
-    props.status === 'approved' ? '#1e7e34' :
-      props.status === 'pending' ? '#b08800' : '#c62828'};
+    props.status === 'approved' ? '#1e7e34' : props.status === 'pending' ? '#b08800' : '#c62828'};
 `;
 
 const ActionBtn = styled.button`
@@ -128,26 +142,37 @@ const ActionBtn = styled.button`
   border-radius: 6px;
   cursor: pointer;
   transition: opacity 0.18s, transform 0.12s;
-  &:hover { opacity: 0.85; transform: translateY(-1px); }
-  &:active { transform: translateY(0); }
+  &:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 const ApproveBtn = styled(ActionBtn)`
   background: hsla(152, 94%, 33%, 0.12);
   color: #1e7e34;
-  &:hover { background: hsla(152, 94%, 33%, 0.22); }
+  &:hover {
+    background: hsla(152, 94%, 33%, 0.22);
+  }
 `;
 
 const RejectBtn = styled(ActionBtn)`
   background: hsla(45, 100%, 51%, 0.12);
   color: #b08800;
-  &:hover { background: hsla(45, 100%, 51%, 0.22); }
+  &:hover {
+    background: hsla(45, 100%, 51%, 0.22);
+  }
 `;
 
 const DeleteBtn = styled(ActionBtn)`
   background: hsla(0, 80%, 50%, 0.1);
   color: #c62828;
-  &:hover { background: hsla(0, 80%, 50%, 0.18); }
+  &:hover {
+    background: hsla(0, 80%, 50%, 0.18);
+  }
 `;
 
 const FeedbackBadge = styled.span`
@@ -164,7 +189,7 @@ const Stars = styled.span`
   font-size: 1rem;
 `;
 
-const renderStars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+const renderStars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 
 const Admin = () => {
   const { nurseries, approveNursery, rejectNursery, removeNursery } = useContext(NurseryContext);
@@ -173,9 +198,9 @@ const Admin = () => {
 
   useEffect(() => {
     fetch(`${API_BASE}/feedback`)
-      .then(res => res.ok ? res.json() : [])
+      .then(res => (res.ok ? res.json() : []))
       .then(data => setFeedbacks(Array.isArray(data) ? data : []))
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   const pendingCount = nurseries.filter(n => n.status === 'pending').length;
@@ -190,7 +215,9 @@ const Admin = () => {
             <Heading>Admin Dashboard</Heading>
             <Text>Welcome back, Administrator</Text>
           </div>
-          <Button secondary as={Link} to="/">View Site</Button>
+          <Button secondary as={Link} to="/">
+            View Site
+          </Button>
         </StyledHeader>
 
         {/* Stat cards */}
@@ -242,15 +269,23 @@ const Admin = () => {
             <tbody>
               {nurseries.map(nursery => (
                 <tr key={nursery.id}>
-                  <td><strong>{nursery.name}</strong></td>
+                  <td>
+                    <strong>{nursery.name}</strong>
+                  </td>
                   <td>{nursery.location || 'N/A'}</td>
                   <td>{nursery.contact || 'N/A'}</td>
                   <td>
                     <strong>
-                      {plants ? plants.filter(p => String(p.nurseryId) === String(nursery.id)).length : 0}
+                      {plants
+                        ? plants.filter(p => String(p.nurseryId) === String(nursery.id)).length
+                        : 0}
                     </strong>
                   </td>
-                  <td><StatusBadge status={nursery.status || 'pending'}>{nursery.status || 'pending'}</StatusBadge></td>
+                  <td>
+                    <StatusBadge status={nursery.status || 'pending'}>
+                      {nursery.status || 'pending'}
+                    </StatusBadge>
+                  </td>
                   <td>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       {nursery.status === 'pending' && (
@@ -258,14 +293,14 @@ const Admin = () => {
                           <ApproveBtn onClick={() => approveNursery(nursery.id)}>
                             ✅ Approve
                           </ApproveBtn>
-                          <RejectBtn onClick={() => rejectNursery(nursery.id)}>
-                            ✖ Reject
-                          </RejectBtn>
+                          <RejectBtn onClick={() => rejectNursery(nursery.id)}>✖ Reject</RejectBtn>
                         </>
                       )}
-                      <DeleteBtn onClick={() => {
-                        if (window.confirm('Delete this nursery?')) removeNursery(nursery.id);
-                      }}>
+                      <DeleteBtn
+                        onClick={() => {
+                          if (window.confirm('Delete this nursery?')) removeNursery(nursery.id);
+                        }}
+                      >
                         🗑️ Delete
                       </DeleteBtn>
                     </div>
@@ -273,7 +308,11 @@ const Admin = () => {
                 </tr>
               ))}
               {nurseries.length === 0 && (
-                <tr><td colSpan="6" style={{ textAlign: 'center', color: '#888' }}>No nurseries found</td></tr>
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', color: '#888' }}>
+                    No nurseries found
+                  </td>
+                </tr>
               )}
             </tbody>
           </StyledTable>
@@ -298,15 +337,29 @@ const Admin = () => {
             <tbody>
               {recentFeedback.map(f => (
                 <tr key={f.id}>
-                  <td><strong>{f.name}</strong><br /><span style={{ color: '#999', fontSize: '0.85rem' }}>{f.email}</span></td>
-                  <td><Stars>{renderStars(f.rating)}</Stars></td>
-                  <td><FeedbackBadge>{f.category}</FeedbackBadge></td>
+                  <td>
+                    <strong>{f.name}</strong>
+                    <br />
+                    <span style={{ color: '#999', fontSize: '0.85rem' }}>{f.email}</span>
+                  </td>
+                  <td>
+                    <Stars>{renderStars(f.rating)}</Stars>
+                  </td>
+                  <td>
+                    <FeedbackBadge>{f.category}</FeedbackBadge>
+                  </td>
                   <td style={{ maxWidth: 260, color: '#555' }}>{f.message}</td>
-                  <td style={{ color: '#999', whiteSpace: 'nowrap' }}>{new Date(f.createdAt).toLocaleDateString()}</td>
+                  <td style={{ color: '#999', whiteSpace: 'nowrap' }}>
+                    {new Date(f.createdAt).toLocaleDateString()}
+                  </td>
                 </tr>
               ))}
               {recentFeedback.length === 0 && (
-                <tr><td colSpan="5" style={{ textAlign: 'center', color: '#888' }}>No feedback yet</td></tr>
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center', color: '#888' }}>
+                    No feedback yet
+                  </td>
+                </tr>
               )}
             </tbody>
           </StyledTable>

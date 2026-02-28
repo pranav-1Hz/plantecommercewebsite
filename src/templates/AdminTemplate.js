@@ -25,16 +25,16 @@ const StyledContent = styled.main`
 `;
 
 const AdminTemplate = ({ children }) => {
-    return (
-        <StyledAdminLayout>
-            <AdminSidebar />
-            <StyledContent>{children}</StyledContent>
-        </StyledAdminLayout>
-    );
+  return (
+    <StyledAdminLayout>
+      <AdminSidebar />
+      <StyledContent>{children}</StyledContent>
+    </StyledAdminLayout>
+  );
 };
 
 AdminTemplate.propTypes = {
-    children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired,
 };
 
 export default AdminTemplate;

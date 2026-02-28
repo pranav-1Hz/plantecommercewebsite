@@ -75,8 +75,12 @@ const inputStyles = css`
   }
 `;
 
-const StyledInput = styled(Input)`${inputStyles}`;
-const StyledPasswordInput = styled(PasswordInput)`${inputStyles}`;
+const StyledInput = styled(Input)`
+  ${inputStyles}
+`;
+const StyledPasswordInput = styled(PasswordInput)`
+  ${inputStyles}
+`;
 
 const StyledHeadingWrapper = styled.div`
   display: flex;
@@ -180,8 +184,10 @@ const Login = () => {
   };
 
   const handleSignin = () => {
-    fire.auth().signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
+    fire
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
         const userEmail = userCredential.user.email;
         if (userEmail.includes('admin')) {
           routerHistory.push('/admin');
@@ -193,20 +199,24 @@ const Login = () => {
   };
 
   const handleSignup = () => {
-    fire.auth().createUserWithEmailAndPassword(email, password, fullName, phoneNumber)
-      .then((userCredential) => {
-        alert("Account created successfully!");
+    fire
+      .auth()
+      .createUserWithEmailAndPassword(email, password, fullName, phoneNumber)
+      .then(userCredential => {
+        alert('Account created successfully!');
         setNewAccount(false); // Switch to login view or redirect directly
         // Optional: auto-login
-        // routerHistory.push('/nursery'); 
+        // routerHistory.push('/nursery');
       })
       .catch(error => alert(`Sign up failed: ${error.message} `));
   };
 
   const handleRequestOtp = () => {
-    if (!email) return alert("Please enter email first");
-    fire.auth().requestPasswordReset(email)
-      .then((data) => {
+    if (!email) return alert('Please enter email first');
+    fire
+      .auth()
+      .requestPasswordReset(email)
+      .then(data => {
         // Dev mode: OTP is returned in the API response and shown on screen
         if (data.otp) {
           setDisplayedOtp(data.otp);
@@ -218,9 +228,11 @@ const Login = () => {
   };
 
   const handleConfirmReset = () => {
-    fire.auth().confirmPasswordReset(email, otp, newPassword)
+    fire
+      .auth()
+      .confirmPasswordReset(email, otp, newPassword)
       .then(() => {
-        alert("Password reset successful! Please login.");
+        alert('Password reset successful! Please login.');
         setForgotPassword(false);
         setResetStep(1);
       })
@@ -231,14 +243,20 @@ const Login = () => {
     <StyledWrapper>
       <PlantHalfPage isLoginPage={true} />
       <StyledFormWrapper>
-        <StyledForm onSubmit={handleSubmit(
-          forgotPassword
-            ? (resetStep === 1 ? handleRequestOtp : handleConfirmReset)
-            : (newAccount ? handleSignup : handleSignin)
-        )}>
+        <StyledForm
+          onSubmit={handleSubmit(
+            forgotPassword
+              ? resetStep === 1
+                ? handleRequestOtp
+                : handleConfirmReset
+              : newAccount
+              ? handleSignup
+              : handleSignin,
+          )}
+        >
           <StyledHeadingWrapper>
             <StyledHeading>
-              {forgotPassword ? 'Reset Password' : (newAccount ? 'Sign up' : 'Sign in')}
+              {forgotPassword ? 'Reset Password' : newAccount ? 'Sign up' : 'Sign in'}
             </StyledHeading>
           </StyledHeadingWrapper>
 
@@ -259,17 +277,31 @@ const Login = () => {
               {resetStep === 2 && (
                 <>
                   {displayedOtp && (
-                    <div style={{
-                      background: '#f0fff4',
-                      border: '2px solid #38a169',
-                      borderRadius: '8px',
-                      padding: '1rem',
-                      margin: '1rem 0',
-                      textAlign: 'center',
-                      width: '100%'
-                    }}>
-                      <p style={{ fontSize: '0.85rem', color: '#555', margin: '0 0 0.5rem 0' }}>🔐 Your OTP Code (Dev Mode)</p>
-                      <p style={{ fontSize: '2rem', fontWeight: 'bold', letterSpacing: '0.5rem', color: '#276749', margin: 0 }}>{displayedOtp}</p>
+                    <div
+                      style={{
+                        background: '#f0fff4',
+                        border: '2px solid #38a169',
+                        borderRadius: '8px',
+                        padding: '1rem',
+                        margin: '1rem 0',
+                        textAlign: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      <p style={{ fontSize: '0.85rem', color: '#555', margin: '0 0 0.5rem 0' }}>
+                        🔐 Your OTP Code (Dev Mode)
+                      </p>
+                      <p
+                        style={{
+                          fontSize: '2rem',
+                          fontWeight: 'bold',
+                          letterSpacing: '0.5rem',
+                          color: '#276749',
+                          margin: 0,
+                        }}
+                      >
+                        {displayedOtp}
+                      </p>
                     </div>
                   )}
 
@@ -358,7 +390,11 @@ const Login = () => {
 
               {!newAccount && (
                 <div style={{ width: '100%', textAlign: 'right', marginTop: '0.5rem' }}>
-                  <Button simple onClick={handleForgotPasswordToggle} style={{ fontSize: '0.9rem' }}>
+                  <Button
+                    simple
+                    onClick={handleForgotPasswordToggle}
+                    style={{ fontSize: '0.9rem' }}
+                  >
                     Forgot Password?
                   </Button>
                 </div>
@@ -377,11 +413,28 @@ const Login = () => {
                 </Button>
               </StyledTextWrapper>
 
-              <div style={{ marginTop: '3rem', width: '100%', borderTop: '1px solid #eee', paddingTop: '2rem', display: 'flex', justifyContent: 'space-around' }}>
-                <Button simple style={{ fontSize: '1rem', color: '#555' }} onClick={() => routerHistory.push('/nursery-login')}>
+              <div
+                style={{
+                  marginTop: '3rem',
+                  width: '100%',
+                  borderTop: '1px solid #eee',
+                  paddingTop: '2rem',
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                }}
+              >
+                <Button
+                  simple
+                  style={{ fontSize: '1rem', color: '#555' }}
+                  onClick={() => routerHistory.push('/nursery-login')}
+                >
                   Nursery Partner Login
                 </Button>
-                <Button simple style={{ fontSize: '1rem', color: '#555' }} onClick={() => routerHistory.push('/admin-login')}>
+                <Button
+                  simple
+                  style={{ fontSize: '1rem', color: '#555' }}
+                  onClick={() => routerHistory.push('/admin-login')}
+                >
                   🛡️ Admin Login
                 </Button>
               </div>
@@ -389,7 +442,13 @@ const Login = () => {
           )}
         </StyledForm>
         <StyledFooter>
-          <Text as="span">Made with <span role="img" aria-label="Heart icon">💚</span> by <StyledAuthor href="#">PRANAV</StyledAuthor></Text>
+          <Text as="span">
+            Made with{' '}
+            <span role="img" aria-label="Heart icon">
+              💚
+            </span>{' '}
+            by <StyledAuthor href="#">PRANAV</StyledAuthor>
+          </Text>
         </StyledFooter>
       </StyledFormWrapper>
     </StyledWrapper>

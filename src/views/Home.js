@@ -35,7 +35,9 @@ const ViewAllBtn = styled(Link)`
   font-size: 1.05rem;
   font-weight: ${({ theme }) => theme.regular};
   transition: opacity 0.2s;
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 const Home = () => {

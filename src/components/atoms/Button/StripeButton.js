@@ -24,7 +24,7 @@ const ModalContent = styled.div`
   border-radius: 8px;
   padding: 30px;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 `;
 
 const CloseButton = styled.button`
@@ -93,7 +93,7 @@ const CheckoutModal = ({ price, onClose }) => {
   const [selectedMethod, setSelectedMethod] = useState('card');
   const history = useHistory();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     event.preventDefault();
     setIsProcessing(true);
 
@@ -107,26 +107,54 @@ const CheckoutModal = ({ price, onClose }) => {
     <PortalOverlay onClick={onClose}>
       <ModalContent onClick={e => e.stopPropagation()}>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-        <div style={{ marginBottom: '1.5rem', color: 'hsla(0, 0%, 0%, 0.8)', fontSize: '1.5rem', fontWeight: 'bold' }}>
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            color: 'hsla(0, 0%, 0%, 0.8)',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+          }}
+        >
           Secure Checkout (Demo)
         </div>
 
         <PaymentOptions>
-          <PaymentBadge selected={selectedMethod === 'gpay'} onClick={() => setSelectedMethod('gpay')}>
+          <PaymentBadge
+            selected={selectedMethod === 'gpay'}
+            onClick={() => setSelectedMethod('gpay')}
+          >
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6.5 4.5-6.5 4.5z" fill="#4285F4" />
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6.5 4.5-6.5 4.5z"
+                fill="#4285F4"
+              />
             </svg>
             GPay
           </PaymentBadge>
-          <PaymentBadge selected={selectedMethod === 'paytm'} onClick={() => setSelectedMethod('paytm')}>
+          <PaymentBadge
+            selected={selectedMethod === 'paytm'}
+            onClick={() => setSelectedMethod('paytm')}
+          >
             <svg viewBox="0 0 24 24" fill="none">
               <rect x="2" y="4" width="20" height="16" rx="2" fill="#00baf2" />
-              <text x="5" y="16" fill="white" fontSize="10" fontWeight="bold">Paytm</text>
+              <text x="5" y="16" fill="white" fontSize="10" fontWeight="bold">
+                Paytm
+              </text>
             </svg>
             Paytm
           </PaymentBadge>
-          <PaymentBadge selected={selectedMethod === 'card'} onClick={() => setSelectedMethod('card')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <PaymentBadge
+            selected={selectedMethod === 'card'}
+            onClick={() => setSelectedMethod('card')}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#555"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
               <line x1="1" y1="10" x2="23" y2="10"></line>
             </svg>
@@ -144,8 +172,18 @@ const CheckoutModal = ({ price, onClose }) => {
               </div>
             </div>
           ) : (
-            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f9f9f9', borderRadius: '4px', textAlign: 'center', color: '#666' }}>
-              Click Pay to securely redirect to the {selectedMethod === 'gpay' ? 'Google Pay' : 'Paytm'} app.
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: '#f9f9f9',
+                borderRadius: '4px',
+                textAlign: 'center',
+                color: '#666',
+              }}
+            >
+              Click Pay to securely redirect to the{' '}
+              {selectedMethod === 'gpay' ? 'Google Pay' : 'Paytm'} app.
             </div>
           )}
 
@@ -172,9 +210,7 @@ const StripeButton = ({ price }) => {
         Pay now
       </Button>
 
-      {isModalOpen && (
-        <CheckoutModal price={price} onClose={() => setIsModalOpen(false)} />
-      )}
+      {isModalOpen && <CheckoutModal price={price} onClose={() => setIsModalOpen(false)} />}
     </>
   );
 };

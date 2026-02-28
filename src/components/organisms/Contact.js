@@ -84,11 +84,11 @@ const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     if (form.name && form.email && form.message) {
       setSubmitted(true);
@@ -101,8 +101,8 @@ const Contact = () => {
       <ContentWrapper>
         <StyledHeading main>Contact Us</StyledHeading>
         <Text main style={{ textAlign: 'center' }}>
-          Have a question or just want to say hi? Fill in the form below and
-          we&apos;ll get back to you as soon as possible.
+          Have a question or just want to say hi? Fill in the form below and we&apos;ll get back to
+          you as soon as possible.
         </Text>
         {submitted ? (
           <SuccessMsg>🌿 Thank you! Your message has been sent.</SuccessMsg>

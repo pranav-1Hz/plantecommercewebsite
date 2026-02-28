@@ -78,8 +78,12 @@ const inputStyles = css`
   }
 `;
 
-const StyledInput = styled(Input)`${inputStyles}`;
-const StyledPasswordInput = styled(PasswordInput)`${inputStyles}`;
+const StyledInput = styled(Input)`
+  ${inputStyles}
+`;
+const StyledPasswordInput = styled(PasswordInput)`
+  ${inputStyles}
+`;
 
 const StyledInputLabelWrapper = styled.div`
   display: flex;
@@ -123,7 +127,8 @@ const AdminLogin = () => {
       return;
     }
 
-    fire.auth()
+    fire
+      .auth()
       .signInAdmin(email, password)
       .then(() => {
         setTimeout(() => {
@@ -170,11 +175,7 @@ const AdminLogin = () => {
           </Button>
         </StyledForm>
 
-        <Button
-          simple
-          style={{ marginTop: '1rem' }}
-          onClick={() => routerHistory.push('/')}
-        >
+        <Button simple style={{ marginTop: '1rem' }} onClick={() => routerHistory.push('/')}>
           Back to Shop
         </Button>
       </StyledFormWrapper>

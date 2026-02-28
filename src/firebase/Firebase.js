@@ -22,7 +22,7 @@ class AuthClient {
       const res = await fetch(`${apiBase}/me`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: this.token })
+        body: JSON.stringify({ token: this.token }),
       });
       const data = await res.json();
       if (data.user) {
@@ -32,7 +32,7 @@ class AuthClient {
         this.logoutLocal();
       }
     } catch (err) {
-      console.error("Error fetching user:", err);
+      console.error('Error fetching user:', err);
       this.logoutLocal();
     }
   }
@@ -47,7 +47,9 @@ class AuthClient {
   onAuthStateChanged(cb) {
     this.listeners.push(cb);
     cb(this.currentUser); // Always fire with current state (null or user)
-    return () => { this.listeners = this.listeners.filter(l => l !== cb); };
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== cb);
+    };
   }
 
   notify() {
@@ -58,7 +60,7 @@ class AuthClient {
     const res = await fetch(`${apiBase}/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Login failed');
@@ -74,7 +76,7 @@ class AuthClient {
     const res = await fetch(`${apiBase}/nursery/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Login failed');
@@ -90,7 +92,7 @@ class AuthClient {
     const res = await fetch(`${apiBase}/nursery/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(nurseryData)
+      body: JSON.stringify(nurseryData),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Signup failed');
@@ -106,7 +108,7 @@ class AuthClient {
     const res = await fetch(`${apiBase}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Login failed');
@@ -122,7 +124,7 @@ class AuthClient {
     const res = await fetch(`${apiBase}/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, fullName, phoneNumber })
+      body: JSON.stringify({ email, password, fullName, phoneNumber }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Signup failed');
@@ -143,7 +145,7 @@ class AuthClient {
     const res = await fetch(`${apiBase}/request-reset`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Request failed');
@@ -154,21 +156,19 @@ class AuthClient {
     const res = await fetch(`${apiBase}/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, otp, newPassword })
+      body: JSON.stringify({ email, otp, newPassword }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Reset failed');
     return data;
   }
-
-
 }
 
 const authInstance = new AuthClient();
 
 // Export object structure matching Firebase SDK
 const fire = {
-  auth: () => authInstance
+  auth: () => authInstance,
 };
 
 export { fire };

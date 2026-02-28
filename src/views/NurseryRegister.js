@@ -89,8 +89,12 @@ const inputStyles = css`
   }
 `;
 
-const StyledInput = styled(Input)`${inputStyles}`;
-const StyledPasswordInput = styled(PasswordInput)`${inputStyles}`;
+const StyledInput = styled(Input)`
+  ${inputStyles}
+`;
+const StyledPasswordInput = styled(PasswordInput)`
+  ${inputStyles}
+`;
 
 const StyledInputLabelWrapper = styled.div`
   display: flex;
@@ -127,102 +131,106 @@ const StyledHeading = styled(Heading)`
 `;
 
 const NurseryRegister = () => {
-    const { register, handleSubmit, errors } = useForm();
-    const history = useHistory();
-    const [success, setSuccess] = useState(false);
+  const { register, handleSubmit, errors } = useForm();
+  const history = useHistory();
+  const [success, setSuccess] = useState(false);
 
-    const onSubmit = (data) => {
-        fire.auth().registerNursery({
-            email: data.contactEmail,
-            password: data.password,
-            storeName: data.nurseryName,
-            location: data.location,
-            phoneNumber: '000-000-0000' // Placeholder
-        })
-            .then(() => {
-                setSuccess(true);
-                setTimeout(() => {
-                    history.push('/nursery-login');
-                }, 3000);
-            })
-            .catch(err => {
-                console.error(err);
-                alert(`Registration failed: ${err.message}`);
-            });
-    };
+  const onSubmit = data => {
+    fire
+      .auth()
+      .registerNursery({
+        email: data.contactEmail,
+        password: data.password,
+        storeName: data.nurseryName,
+        location: data.location,
+        phoneNumber: '000-000-0000', // Placeholder
+      })
+      .then(() => {
+        setSuccess(true);
+        setTimeout(() => {
+          history.push('/nursery-login');
+        }, 3000);
+      })
+      .catch(err => {
+        console.error(err);
+        alert(`Registration failed: ${err.message}`);
+      });
+  };
 
-    return (
-        <StyledWrapper>
-            <PlantHalfPage isLoginPage={true} />
-            <StyledFormWrapper>
-                {success ? (
-                    <div style={{ padding: '2rem', textAlign: 'center' }}>
-                        <Heading>🎉 Application Submitted!</Heading>
-                        <Text style={{ marginTop: '1rem' }}>
-                            Your nursery account has been created!
-                            Redirecting to login...
-                        </Text>
-                    </div>
-                ) : (
-                    <StyledForm onSubmit={handleSubmit(onSubmit)}>
-                        <StyledHeading>Register Nursery</StyledHeading>
+  return (
+    <StyledWrapper>
+      <PlantHalfPage isLoginPage={true} />
+      <StyledFormWrapper>
+        {success ? (
+          <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <Heading>🎉 Application Submitted!</Heading>
+            <Text style={{ marginTop: '1rem' }}>
+              Your nursery account has been created! Redirecting to login...
+            </Text>
+          </div>
+        ) : (
+          <StyledForm onSubmit={handleSubmit(onSubmit)}>
+            <StyledHeading>Register Nursery</StyledHeading>
 
-                        <StyledInputLabelWrapper>
-                            <StyledInput
-                                name="nurseryName"
-                                placeholder="Nursery Name"
-                                ref={register({ required: true })}
-                            />
-                            <StyledLabel>Nursery Name</StyledLabel>
-                        </StyledInputLabelWrapper>
-                        {errors.nurseryName && <Text errorMessage>Name is required</Text>}
+            <StyledInputLabelWrapper>
+              <StyledInput
+                name="nurseryName"
+                placeholder="Nursery Name"
+                ref={register({ required: true })}
+              />
+              <StyledLabel>Nursery Name</StyledLabel>
+            </StyledInputLabelWrapper>
+            {errors.nurseryName && <Text errorMessage>Name is required</Text>}
 
-                        <StyledInputLabelWrapper>
-                            <StyledInput
-                                name="location"
-                                placeholder="Location (City, State)"
-                                ref={register({ required: true })}
-                            />
-                            <StyledLabel>Location (City, State)</StyledLabel>
-                        </StyledInputLabelWrapper>
-                        {errors.location && <Text errorMessage>Location is required</Text>}
+            <StyledInputLabelWrapper>
+              <StyledInput
+                name="location"
+                placeholder="Location (City, State)"
+                ref={register({ required: true })}
+              />
+              <StyledLabel>Location (City, State)</StyledLabel>
+            </StyledInputLabelWrapper>
+            {errors.location && <Text errorMessage>Location is required</Text>}
 
-                        <StyledInputLabelWrapper>
-                            <StyledInput
-                                name="contactEmail"
-                                placeholder="Contact Email"
-                                ref={register({ required: true, pattern: /^\S+@\S+$/i })}
-                            />
-                            <StyledLabel>Contact Email</StyledLabel>
-                        </StyledInputLabelWrapper>
-                        {errors.contactEmail && <Text errorMessage>Valid email is required</Text>}
+            <StyledInputLabelWrapper>
+              <StyledInput
+                name="contactEmail"
+                placeholder="Contact Email"
+                ref={register({ required: true, pattern: /^\S+@\S+$/i })}
+              />
+              <StyledLabel>Contact Email</StyledLabel>
+            </StyledInputLabelWrapper>
+            {errors.contactEmail && <Text errorMessage>Valid email is required</Text>}
 
-                        <StyledInputLabelWrapper>
-                            <StyledPasswordInput
-                                name="password"
-                                placeholder="Password"
-                                ref={register({ required: true, minLength: 6 })}
-                            />
-                            <StyledLabel>Password</StyledLabel>
-                        </StyledInputLabelWrapper>
-                        {errors.password && <Text errorMessage>Password (min 6 chars) is required</Text>}
+            <StyledInputLabelWrapper>
+              <StyledPasswordInput
+                name="password"
+                placeholder="Password"
+                ref={register({ required: true, minLength: 6 })}
+              />
+              <StyledLabel>Password</StyledLabel>
+            </StyledInputLabelWrapper>
+            {errors.password && <Text errorMessage>Password (min 6 chars) is required</Text>}
 
-                        <Button type="submit" secondary style={{ marginTop: '1rem', width: '100%' }}>
-                            Submit Application
-                        </Button>
+            <Button type="submit" secondary style={{ marginTop: '1rem', width: '100%' }}>
+              Submit Application
+            </Button>
 
-                        <Button
-                            simple
-                            onClick={(e) => { e.preventDefault(); history.push('/'); }}
-                            style={{ marginTop: '1rem' }}
-                        >
-                            Cancel
-                        </Button>
-                    </StyledForm>
-                )}
-            </StyledFormWrapper>
-        </StyledWrapper>
-    );
+            <Button
+              simple
+              onClick={e => {
+                e.preventDefault();
+                history.push('/');
+              }}
+              style={{ marginTop: '1rem' }}
+            >
+              Cancel
+            </Button>
+          </StyledForm>
+        )}
+      </StyledFormWrapper>
+    </StyledWrapper>
+  );
 };
 
 export default NurseryRegister;

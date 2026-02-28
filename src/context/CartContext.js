@@ -14,13 +14,13 @@ export const CartContext = createContext({
   plants: [],
   filtredPlants: [],
   cartItems: [],
-  addItem: () => { },
-  addPlant: () => { },
-  removePlant: () => { },
-  removeItem: () => { },
-  clearItemFromCart: () => { },
-  getPlant: () => { },
-  handleChange: () => { },
+  addItem: () => {},
+  addPlant: () => {},
+  removePlant: () => {},
+  removeItem: () => {},
+  clearItemFromCart: () => {},
+  getPlant: () => {},
+  handleChange: () => {},
   filterPlants: [],
   cartItemsCount: 0,
   cartTotal: 0,
@@ -32,8 +32,8 @@ export const CartContext = createContext({
   hex1: '#B5B5B5',
   hex2: '#485550',
   hex3: '#4B6358',
-  changeColor: () => { },
-  clearColor: () => { },
+  changeColor: () => {},
+  clearColor: () => {},
   loading: false,
   user: {},
 });
@@ -153,7 +153,7 @@ const CartProvider = ({ children, user }) => {
     }
   }, []);
 
-  const addPlant = (newPlant) => {
+  const addPlant = newPlant => {
     const updatedLocalPlants = [...localPlants, newPlant];
     setLocalPlants(updatedLocalPlants);
     localStorage.setItem('localPlants', JSON.stringify(updatedLocalPlants));
@@ -194,7 +194,7 @@ const CartProvider = ({ children, user }) => {
             plantPrice: 49.99,
             plantSlug: 'monstera-deliciosa',
             plantDescription: 'A large-leafed tropical plant',
-            image: null
+            image: null,
           },
           {
             id: '2',
@@ -203,7 +203,7 @@ const CartProvider = ({ children, user }) => {
             plantPrice: 29.99,
             plantSlug: 'snake-plant',
             plantDescription: 'Low maintenance succulent',
-            image: null
+            image: null,
           },
           {
             id: '3',
@@ -212,7 +212,7 @@ const CartProvider = ({ children, user }) => {
             plantPrice: 19.99,
             plantSlug: 'pothos',
             plantDescription: 'Easy to grow climbing plant',
-            image: null
+            image: null,
           },
         ];
 
@@ -232,7 +232,7 @@ const CartProvider = ({ children, user }) => {
     getPlantsData();
   }, [cartItems, localPlants.length]);
 
-  const removePlant = (plantId) => {
+  const removePlant = plantId => {
     // Remove from local storage
     const updatedLocalPlants = localPlants.filter(p => p.id !== plantId);
     setLocalPlants(updatedLocalPlants);

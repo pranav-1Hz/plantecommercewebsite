@@ -1,6 +1,7 @@
 {
   "name": "plantshop",
   "version": "0.1.0",
+  "author": "Pranav",
   "private": true,
   "dependencies": {
     "@stripe/react-stripe-js": "^5.6.0",

@@ -51,7 +51,18 @@ const Product = ({ title, src, slug, price, nurseryName }) => {
         <StyledTitle>
           {title}
           <StyledPirce> /${price}</StyledPirce>
-          {nurseryName && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.2rem', fontWeight: 'normal' }}>By {nurseryName}</div>}
+          {nurseryName && (
+            <div
+              style={{
+                fontSize: '0.8rem',
+                color: '#666',
+                marginTop: '0.2rem',
+                fontWeight: 'normal',
+              }}
+            >
+              By {nurseryName}
+            </div>
+          )}
         </StyledTitle>
         <StyledImageWrapper className="image_reveal">
           <StyledImage src={src} alt={`${title} plant`} />

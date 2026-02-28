@@ -62,7 +62,7 @@ const Body = styled.div`
 const Sidebar = styled.aside`
   width: 230px;
   flex-shrink: 0;
-  margin-left: 0;          /* sits at the very left edge of the body */
+  margin-left: 0; /* sits at the very left edge of the body */
   position: sticky;
   top: 1.5rem;
   background: #fff;
@@ -114,8 +114,12 @@ const SearchInput = styled.input`
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
-  &:focus { border-color: ${({ theme }) => theme.fontColorPrimary}; }
-  &::placeholder { color: #bbb; }
+  &:focus {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
+  &::placeholder {
+    color: #bbb;
+  }
 `;
 
 const StyledSelect = styled.select`
@@ -133,7 +137,9 @@ const StyledSelect = styled.select`
   box-sizing: border-box;
   color: ${({ theme }) => theme.fontColorHeading};
   transition: border-color 0.2s;
-  &:focus { border-color: ${({ theme }) => theme.fontColorPrimary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
 `;
 
 const RangeWrapper = styled.div`
@@ -190,7 +196,9 @@ const NurseryList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
   &::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.primaryColor};
     border-radius: 4px;
@@ -206,12 +214,12 @@ const NurseryBtn = styled.button`
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  background: ${({ active, theme }) => active ? theme.primaryColor : 'transparent'};
-  color: ${({ active, theme }) => active ? '#fff' : theme.fontColorHeading};
-  font-weight: ${({ active, theme }) => active ? theme.bold : theme.regular};
+  background: ${({ active, theme }) => (active ? theme.primaryColor : 'transparent')};
+  color: ${({ active, theme }) => (active ? '#fff' : theme.fontColorHeading)};
+  font-weight: ${({ active, theme }) => (active ? theme.bold : theme.regular)};
   transition: background 0.15s, color 0.15s;
   &:hover {
-    background: ${({ active, theme }) => active ? theme.primaryColor : theme.secondaryColor};
+    background: ${({ active, theme }) => (active ? theme.primaryColor : theme.secondaryColor)};
   }
 `;
 
@@ -241,10 +249,17 @@ const Content = styled.div`
 /* ─── Component ───────────────────────────────────────────── */
 const AllPlants = () => {
   const {
-    plants, filtredPlants, loading,
-    price, minPrice, maxPrice,
-    type, searchName,
-    handleChangeSearch, handleChangeType, handleChangePrice,
+    plants,
+    filtredPlants,
+    loading,
+    price,
+    minPrice,
+    maxPrice,
+    type,
+    searchName,
+    handleChangeSearch,
+    handleChangeType,
+    handleChangePrice,
   } = useContext(CartContext);
 
   const { nurseries } = useContext(NurseryContext);
@@ -259,9 +274,9 @@ const AllPlants = () => {
   }
 
   const handleReset = () => {
-    handleChangeSearch({ preventDefault: () => { }, target: { value: '' } });
-    handleChangeType({ preventDefault: () => { }, target: { value: 'all' } });
-    handleChangePrice({ preventDefault: () => { }, target: { value: maxPrice } });
+    handleChangeSearch({ preventDefault: () => {}, target: { value: '' } });
+    handleChangeType({ preventDefault: () => {}, target: { value: 'all' } });
+    handleChangePrice({ preventDefault: () => {}, target: { value: maxPrice } });
     setSelectedNursery(null);
   };
 
@@ -273,7 +288,9 @@ const AllPlants = () => {
         <TitleRow>
           <PageTitle>All Plants</PageTitle>
           {!loading && (
-            <CountBadge>{displayPlants.length} plant{displayPlants.length !== 1 ? 's' : ''}</CountBadge>
+            <CountBadge>
+              {displayPlants.length} plant{displayPlants.length !== 1 ? 's' : ''}
+            </CountBadge>
           )}
         </TitleRow>
 
@@ -298,7 +315,9 @@ const AllPlants = () => {
               <FilterLabel htmlFor="ap-type">Plant type</FilterLabel>
               <StyledSelect id="ap-type" name="type" value={type} onChange={handleChangeType}>
                 {plantTypes.map(t => (
-                  <option value={t} key={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                  <option value={t} key={t}>
+                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                  </option>
                 ))}
               </StyledSelect>
             </FilterGroup>
@@ -316,7 +335,10 @@ const AllPlants = () => {
                   onChange={handleChangePrice}
                 />
               </RangeWrapper>
-              <PriceDisplay><span>${minPrice}</span><span>${maxPrice}</span></PriceDisplay>
+              <PriceDisplay>
+                <span>${minPrice}</span>
+                <span>${maxPrice}</span>
+              </PriceDisplay>
             </FilterGroup>
 
             {sortedNurseries.length > 0 && (
@@ -324,7 +346,10 @@ const AllPlants = () => {
                 <FilterLabel>Nursery</FilterLabel>
                 <NurseryList>
                   <li>
-                    <NurseryBtn active={selectedNursery === null} onClick={() => setSelectedNursery(null)}>
+                    <NurseryBtn
+                      active={selectedNursery === null}
+                      onClick={() => setSelectedNursery(null)}
+                    >
                       All Nurseries
                     </NurseryBtn>
                   </li>
@@ -346,9 +371,7 @@ const AllPlants = () => {
           </Sidebar>
 
           {/* Plant grid */}
-          <Content>
-            {loading ? <Loader /> : <Products plants={displayPlants} />}
-          </Content>
+          <Content>{loading ? <Loader /> : <Products plants={displayPlants} />}</Content>
         </Body>
       </Main>
       <Footer />

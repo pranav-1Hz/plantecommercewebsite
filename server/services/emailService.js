@@ -2,11 +2,11 @@ const nodemailer = require('nodemailer');
 
 // Create transporter using Gmail SMTP
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Use Gmail App Password (not your real password)
-    },
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Use Gmail App Password (not your real password)
+  },
 });
 
 /**
@@ -15,11 +15,11 @@ const transporter = nodemailer.createTransport({
  * @param {string} otp - The 6-digit OTP code
  */
 const sendOtpEmail = async (toEmail, otp) => {
-    const mailOptions = {
-        from: `"Plants & Home 🌿" <${process.env.EMAIL_USER}>`,
-        to: toEmail,
-        subject: '🔐 Your Password Reset OTP - Plants & Home',
-        html: `
+  const mailOptions = {
+    from: `"Plants & Home 🌿" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: '🔐 Your Password Reset OTP - Plants & Home',
+    html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #f9f9f9; border-radius: 10px;">
             <div style="text-align: center; margin-bottom: 20px;">
                 <h1 style="color: #2d6a4f; font-size: 28px; margin: 0;">🌿 Plants & Home</h1>
@@ -44,10 +44,10 @@ const sendOtpEmail = async (toEmail, otp) => {
             </p>
         </div>
         `,
-    };
+  };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`📧 OTP email sent to: ${toEmail}`);
+  await transporter.sendMail(mailOptions);
+  console.log(`📧 OTP email sent to: ${toEmail}`);
 };
 
 module.exports = { sendOtpEmail };

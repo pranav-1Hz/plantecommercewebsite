@@ -45,7 +45,9 @@ const StyledInput = styled.input`
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
-  &:focus { border-color: ${({ theme }) => theme.fontColorPrimary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
 `;
 
 const StyledTextarea = styled.textarea`
@@ -62,7 +64,9 @@ const StyledTextarea = styled.textarea`
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
-  &:focus { border-color: ${({ theme }) => theme.fontColorPrimary}; }
+  &:focus {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
 `;
 
 const RatingRow = styled.div`
@@ -77,12 +81,13 @@ const RatingBtn = styled.button`
   font-size: 1rem;
   font-family: inherit;
   border-radius: 4px;
-  border: 2px solid
-    ${({ selected, theme }) => selected ? theme.fontColorPrimary : 'transparent'};
-  background: ${({ selected, theme }) => selected ? theme.primaryColor : '#fff'};
+  border: 2px solid ${({ selected, theme }) => (selected ? theme.fontColorPrimary : 'transparent')};
+  background: ${({ selected, theme }) => (selected ? theme.primaryColor : '#fff')};
   cursor: pointer;
   transition: all 0.18s;
-  &:hover { border-color: ${({ theme }) => theme.fontColorPrimary}; }
+  &:hover {
+    border-color: ${({ theme }) => theme.fontColorPrimary};
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -96,8 +101,13 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: opacity 0.2s;
-  &:hover { opacity: 0.85; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    opacity: 0.85;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorMsg = styled.p`
@@ -118,101 +128,110 @@ const SuccessMsg = styled.p`
 const RATINGS = [1, 2, 3, 4, 5];
 
 const HomeFeedback = () => {
-    const [form, setForm] = useState({ name: '', email: '', rating: null, category: 'General', message: '' });
-    const [submitted, setSubmitted] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    rating: null,
+    category: 'General',
+    message: '',
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!form.rating) { setError('Please choose a star rating.'); return; }
-        setError('');
-        setLoading(true);
-        try {
-            const res = await fetch(`${API_BASE}/feedback`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Submission failed');
-            setSubmitted(true);
-        } catch (err) {
-            setError(
-                err.message === 'Failed to fetch'
-                    ? 'Cannot reach the server. Please make sure the backend is running.'
-                    : err.message
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!form.rating) {
+      setError('Please choose a star rating.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Submission failed');
+      setSubmitted(true);
+    } catch (err) {
+      setError(
+        err.message === 'Failed to fetch'
+          ? 'Cannot reach the server. Please make sure the backend is running.'
+          : err.message,
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <StyledSection id="feedback">
-            <ContentWrapper>
-                <StyledHeading main>Share Your Feedback</StyledHeading>
-                <Text main style={{ textAlign: 'center' }}>
-                    Loved a plant? Had a great experience? Let us know — your voice shapes
-                    our shop! 🌿
-                </Text>
+  return (
+    <StyledSection id="feedback">
+      <ContentWrapper>
+        <StyledHeading main>Share Your Feedback</StyledHeading>
+        <Text main style={{ textAlign: 'center' }}>
+          Loved a plant? Had a great experience? Let us know — your voice shapes our shop! 🌿
+        </Text>
 
-                {submitted ? (
-                    <SuccessMsg>🌟 Thank you! Your feedback has been saved.</SuccessMsg>
-                ) : (
-                    <StyledForm onSubmit={handleSubmit}>
-                        {error && <ErrorMsg>{error}</ErrorMsg>}
+        {submitted ? (
+          <SuccessMsg>🌟 Thank you! Your feedback has been saved.</SuccessMsg>
+        ) : (
+          <StyledForm onSubmit={handleSubmit}>
+            {error && <ErrorMsg>{error}</ErrorMsg>}
 
-                        <Row>
-                            <StyledInput
-                                type="text"
-                                name="name"
-                                placeholder="Your Name"
-                                value={form.name}
-                                onChange={handleChange}
-                                required
-                            />
-                            <StyledInput
-                                type="email"
-                                name="email"
-                                placeholder="Your Email"
-                                value={form.email}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Row>
+            <Row>
+              <StyledInput
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+              <StyledInput
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </Row>
 
-                        <RatingRow>
-                            {RATINGS.map((star) => (
-                                <RatingBtn
-                                    key={star}
-                                    type="button"
-                                    selected={form.rating === star}
-                                    onClick={() => setForm({ ...form, rating: star })}
-                                >
-                                    {'★'.repeat(star)}{'☆'.repeat(5 - star)}
-                                </RatingBtn>
-                            ))}
-                        </RatingRow>
+            <RatingRow>
+              {RATINGS.map(star => (
+                <RatingBtn
+                  key={star}
+                  type="button"
+                  selected={form.rating === star}
+                  onClick={() => setForm({ ...form, rating: star })}
+                >
+                  {'★'.repeat(star)}
+                  {'☆'.repeat(5 - star)}
+                </RatingBtn>
+              ))}
+            </RatingRow>
 
-                        <StyledTextarea
-                            name="message"
-                            placeholder="Tell us what you think…"
-                            value={form.message}
-                            onChange={handleChange}
-                            required
-                        />
+            <StyledTextarea
+              name="message"
+              placeholder="Tell us what you think…"
+              value={form.message}
+              onChange={handleChange}
+              required
+            />
 
-                        <SubmitButton type="submit" disabled={loading}>
-                            {loading ? 'Submitting…' : 'Submit Feedback'}
-                        </SubmitButton>
-                    </StyledForm>
-                )}
-            </ContentWrapper>
-        </StyledSection>
-    );
+            <SubmitButton type="submit" disabled={loading}>
+              {loading ? 'Submitting…' : 'Submit Feedback'}
+            </SubmitButton>
+          </StyledForm>
+        )}
+      </ContentWrapper>
+    </StyledSection>
+  );
 };
 
 export default HomeFeedback;
