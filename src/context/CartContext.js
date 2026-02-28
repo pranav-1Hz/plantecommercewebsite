@@ -14,11 +14,13 @@ export const CartContext = createContext({
   plants: [],
   filtredPlants: [],
   cartItems: [],
-  addItem: () => {},
-  removeItem: () => {},
-  clearItemFromCart: () => {},
-  getPlant: () => {},
-  handleChange: () => {},
+  addItem: () => { },
+  addPlant: () => { },
+  removePlant: () => { },
+  removeItem: () => { },
+  clearItemFromCart: () => { },
+  getPlant: () => { },
+  handleChange: () => { },
   filterPlants: [],
   cartItemsCount: 0,
   cartTotal: 0,
@@ -30,13 +32,13 @@ export const CartContext = createContext({
   hex1: '#B5B5B5',
   hex2: '#485550',
   hex3: '#4B6358',
-  changeColor: () => {},
-  clearColor: () => {},
+  changeColor: () => { },
+  clearColor: () => { },
   loading: false,
   user: {},
 });
 
-const CartProvider = ({ children }) => {
+const CartProvider = ({ children, user }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
@@ -141,28 +143,113 @@ const CartProvider = ({ children }) => {
     return template;
   };
 
+  const [localPlants, setLocalPlants] = useState([]);
+
+  // Load local plants on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('localPlants');
+    if (saved) {
+      setLocalPlants(JSON.parse(saved));
+    }
+  }, []);
+
+  const addPlant = (newPlant) => {
+    const updatedLocalPlants = [...localPlants, newPlant];
+    setLocalPlants(updatedLocalPlants);
+    localStorage.setItem('localPlants', JSON.stringify(updatedLocalPlants));
+    // Immediately update plants state to show new plant
+    setPlants(prev => [...prev, newPlant]);
+    // Allow filtering to update
+    setFiltredPlants(prev => [...prev, newPlant]);
+  };
+
   useEffect(() => {
     const getPlantsData = async () => {
-      const response = await DatoCMSData.items.all().then(dataPlant => {
-        setPlants(dataList(dataPlant));
-        setMaxPrice(Math.max(...dataPlant.map(plant => plant.plantPrice)));
-        setMinPrice(Math.min(...dataPlant.map(plant => plant.plantPrice)));
-        setFiltredPlants(dataPlant);
-        setPrice(Math.max(...dataPlant.map(plant => plant.plantPrice)));
+      try {
+        const response = await DatoCMSData.items.all().then(dataPlant => {
+          // Merge CMS plants with local plants
+          const allPlants = [...dataList(dataPlant), ...localPlants];
+
+          setPlants(allPlants);
+          setMaxPrice(Math.max(...allPlants.map(plant => plant.plantPrice)));
+          setMinPrice(Math.min(...allPlants.map(plant => plant.plantPrice)));
+          setFiltredPlants(allPlants);
+          // Only set price if it's 0 (initial load) to avoid resetting filter
+          if (price === 0) {
+            setPrice(Math.max(...allPlants.map(plant => plant.plantPrice)));
+          }
+          setCartItemsCount(getCartItemsCount(cartItems));
+          setCartTotal(getCartTotal(cartItems));
+          setLoading(false);
+        });
+        return response;
+      } catch (error) {
+        console.error('Error loading plants from DatoCMS:', error);
+        // Fallback: Use mock plants
+        const mockPlants = [
+          {
+            id: '1',
+            plantTitle: 'Monstera Deliciosa',
+            plantType: 'indoor',
+            plantPrice: 49.99,
+            plantSlug: 'monstera-deliciosa',
+            plantDescription: 'A large-leafed tropical plant',
+            image: null
+          },
+          {
+            id: '2',
+            plantTitle: 'Snake Plant',
+            plantType: 'indoor',
+            plantPrice: 29.99,
+            plantSlug: 'snake-plant',
+            plantDescription: 'Low maintenance succulent',
+            image: null
+          },
+          {
+            id: '3',
+            plantTitle: 'Pothos',
+            plantType: 'indoor',
+            plantPrice: 19.99,
+            plantSlug: 'pothos',
+            plantDescription: 'Easy to grow climbing plant',
+            image: null
+          },
+        ];
+
+        const allPlants = [...mockPlants, ...localPlants];
+        setPlants(allPlants);
+        setMaxPrice(Math.max(...allPlants.map(plant => plant.plantPrice)));
+        setMinPrice(Math.min(...allPlants.map(plant => plant.plantPrice)));
+        setFiltredPlants(allPlants);
+        if (price === 0) {
+          setPrice(Math.max(...allPlants.map(plant => plant.plantPrice)));
+        }
         setCartItemsCount(getCartItemsCount(cartItems));
         setCartTotal(getCartTotal(cartItems));
         setLoading(false);
-      });
-      return response;
+      }
     };
     getPlantsData();
-  }, [cartItems]);
+  }, [cartItems, localPlants.length]);
+
+  const removePlant = (plantId) => {
+    // Remove from local storage
+    const updatedLocalPlants = localPlants.filter(p => p.id !== plantId);
+    setLocalPlants(updatedLocalPlants);
+    localStorage.setItem('localPlants', JSON.stringify(updatedLocalPlants));
+
+    // Remove from state
+    setPlants(prev => prev.filter(p => p.id !== plantId));
+    setFiltredPlants(prev => prev.filter(p => p.id !== plantId));
+  };
 
   return (
     <CartContext.Provider
       value={{
         cartItems,
         addItem,
+        addPlant,
+        removePlant,
         removeItem,
         clearItemFromCart,
         handleChangeSearch,
@@ -184,6 +271,7 @@ const CartProvider = ({ children }) => {
         hex2,
         hex3,
         loading,
+        user,
       }}
     >
       {children}
@@ -192,6 +280,11 @@ const CartProvider = ({ children }) => {
 };
 CartProvider.propTypes = {
   children: PropTypes.any.isRequired,
+  user: PropTypes.object,
+};
+
+CartProvider.defaultProps = {
+  user: null,
 };
 
 export default CartProvider;

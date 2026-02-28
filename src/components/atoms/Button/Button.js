@@ -11,6 +11,12 @@ const StyledButton = styled.button`
   font-weight: ${({ theme }) => theme.light};
   font-size: 1.5rem;
   font-family: inherit;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   ${({ active }) =>
     active &&
     css`

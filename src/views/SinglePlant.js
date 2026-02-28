@@ -9,6 +9,7 @@ import PlantHalfPage from '../components/molecules/PlantHalfPage';
 import Header from '../components/organisms/Header';
 import FlowerPots from '../components/molecules/FlowerPots';
 import Modal from '../components/molecules/Modal';
+import Accordion from '../components/molecules/Accordion';
 import { CartContext } from '../context/CartContext';
 
 const StyledWrapper = styled.div`
@@ -47,6 +48,14 @@ const StyledDeteailsWrapper = styled.div`
   @media only screen and (min-width: 1000px) {
     width: 50%;
     padding: 4rem 4rem 10rem 4rem;
+    overflow-y: auto;
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 `;
 
@@ -175,6 +184,50 @@ class SinglePlant extends React.Component {
                 <StyledTypeText>{plantType}</StyledTypeText>
               </Text>
               <Text main>{plantDescription}</Text>
+
+              {/* Dynamic Plant Details Sections */}
+              <Accordion title="🌿 Nutrients & Care">
+                <Text main>
+                  {plant.fertilizer ? (
+                    <>
+                      <strong style={{ display: 'block' }}>Fertilizer Schedule:</strong>
+                      <p style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>{plant.fertilizer}</p>
+                    </>
+                  ) : <p>Standard houseplant fertilizer recommended.</p>}
+
+                  {plant.nutrients && (
+                    <>
+                      <strong>Primary Nutrients:</strong>
+                      <ul style={{ marginLeft: '2rem', marginTop: '0.5rem' }}>
+                        {plant.nutrients.split(',').map((nut, index) => <li key={index}>{nut.trim()}</li>)}
+                      </ul>
+                    </>
+                  )}
+                </Text>
+              </Accordion>
+
+              <Accordion title="📋 Specifications">
+                <Text main>
+                  <div style={{ display: 'grid', gap: '1rem' }}>
+                    <div><strong>Mature Size:</strong> {plant.size || 'Varies'}</div>
+                    <div><strong>Sunlight:</strong> {plant.sunlight || 'Indirect light'}</div>
+                    <div><strong>Water Needs:</strong> {plant.water || 'Check soil weekly'}</div>
+                    <div><strong>Soil Type:</strong> {plant.soil || 'Potting mix'}</div>
+                    <div><strong>Temperature:</strong> {plant.temperature || 'Average home temp'}</div>
+                    <div><strong>Humidity:</strong> {plant.humidity || 'Average'}</div>
+                  </div>
+                </Text>
+              </Accordion>
+
+              <Accordion title="ℹ️ More Details">
+                <Text main>
+                  {plant.origin && <p><strong>Origin:</strong> {plant.origin}</p>}
+                  {plant.petSafe && <p style={{ marginTop: '1rem' }}><strong>Pet Safe:</strong> {plant.petSafe}</p>}
+                  {plant.commonIssues && <p style={{ marginTop: '1rem' }}><strong>Common Issues:</strong> {plant.commonIssues}</p>}
+                  {!plant.origin && !plant.petSafe && !plant.commonIssues && <p>No additional details available.</p>}
+                </Text>
+              </Accordion>
+
               <FlowerPots />
               <StyledPaymentWrapper>
                 <StyledTypeText price>${plantPrice}</StyledTypeText>

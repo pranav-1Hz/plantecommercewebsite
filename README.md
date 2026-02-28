@@ -1,79 +1,72 @@
-<img width="100%" src="https://i.ibb.co/7SWZtFS/plants-seo.png" />
+# E-commerce Plants Shop
 
-## Project Overview 🎉
+A full-stack e-commerce application for selling plants, featuring a React frontend, Node.js/Express backend, and MySQL database with Sequelize ORM.
 
-E-commerce plants shop. I used <a href="https://bradfrost.com/blog/post/atomic-web-design">
-Atomic Design</a> for components architecture and <a href="https://storybook.js.org/">
-Storybook</a> for components documentation.
-When you first enter the page, you going to see sing in / sign up form.
-I used <a href="https://firebase.google.com/">Firebase OAuth</a> for authentication. After sign in you can search and filter plants according to your needs. I used <a href="https://www.datocms.com/">Dato CMS</a> for handling plants data. You can add your favourites plats to cart and finally buy them by <a href="https://stripe.com/">Stripe</a>. App supports CI/CD and Progressive Web Apps(PWA).
+## Prerequisites
 
-## Tech/framework used 🔧
+- [Node.js](https://nodejs.org/) (v14 or higher recommended)
+- [MySQL Server](https://www.mysql.com/downloads/)
 
-- React
-- Context API
-- Hooks
-- React Router
-- Styled-Compontens
-- Firebase OAuth
-- Dato CMS
-- StoryBook
-- Netlify
-- CircleCI
-- PWA
-- Stripe
-- Husky & Lint-staged
-- Tools: Webpack, Eslint, Prettier
+## Getting Started
 
-## Screenshots 📺
+### 1. Database Setup
 
-<p align="center">
-    <img src="https://i.ibb.co/vVJXwSY/planttttt.png" alt="Screen Shot">
-</p>
+Create a new MySQL database named `plantshop`:
 
-<p align="center">
-    <img src="https://i.ibb.co/X8Ch1n2/Screen2.png" alt="Screen Shot">
-</p>
-
-<p align="center">
-    <img src="https://i.ibb.co/cvZm0rb/topaste2.png" alt="Screen Shot">
-</p>
-
-## Performance 🚀
-
-<p align="center">
-    <img src="https://i.ibb.co/jHKSz5p/perf.png" alt="Screen Shot">
-</p>
-
-<p align="center">It may be diffrent on your device.</p>
-
-## Code Example/Issues 🔍
-
-If you have any issues, please let me know in the issues section or directly to olafsulich@gmail.com
-
-## Installation 💾
-
-```bash
-git clone https://github.com/olafsulich/E-commerce-Plants-Shop.git
-npm install
-npm run start
+```sql
+CREATE DATABASE plantshop;
 ```
 
-## Sign in ❗️
+### 2. Backend Setup (Server)
 
-- Email: TestUser@gmail.com
-- Password: TestUser1
+1. Navigate to the server directory:
+   ```bash
+   cd server
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Configure environment variables:
+   Check the `.env` file in the `server` directory and ensure the database credentials match your local MySQL configuration:
+   ```env
+   DB_NAME=plantshop
+   DB_USER=root
+   DB_PASSWORD=root
+   DB_HOST=localhost
+   ```
+4. Start the backend server:
+   ```bash
+   npm run dev
+   ```
+   *The server will automatically sync models and create tables on startup.*
 
-## Credits 👏
+### 3. Frontend Setup (Client)
 
-Big thanks to Bartosz Szczeciński from React Polska. Bartosz helps me with problem during development.
+1. Open a new terminal in the root directory.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the React application:
+   ```bash
+   npm start
+   ```
 
-## Live 📍
+## Key Features
 
-<a href="https://plants-and-home.netlify.com">https://plants-and-home.netlify.com</a>
+- **Admin Dashboard**: Manage nurseries, plants, and feedback.
+- **Nursery Application**: Nurseries can apply and manage their own inventory upon approval.
+- **Modern UI**: Consistent and professional design using styled-components.
+- **MySQL Integration**: Persistent storage using Sequelize ORM.
 
-## License 🔱
+## Troubleshooting
 
-Under license (MIT, Apache etc)
+If you encounter OpenSSL issues on newer Node.js versions during `npm start`, use:
+```bash
+set NODE_OPTIONS=--openssl-legacy-provider && npm start
+```
 
-MIT © [Olaf Sulich]()
+To kill any process on port 5000:
+
+```taskkill /F /PID 3448```

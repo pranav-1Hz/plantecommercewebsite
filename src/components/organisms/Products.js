@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { CartContext } from '../../context/CartContext';
+import { NurseryContext } from '../../context/NurseryContext';
 import Product from '../molecules/Product';
 import Text from '../atoms/Text/Text';
 import Loader from '../atoms/Loader/Loader';
@@ -39,6 +40,7 @@ const StyledNoMatchWrapper = styled.div`
 
 const Products = ({ plants }) => {
   const { loading } = useContext(CartContext);
+  const { nurseries } = useContext(NurseryContext);
 
   if (loading) {
     return <Loader />;
@@ -53,15 +55,19 @@ const Products = ({ plants }) => {
 
   return (
     <StyledWrapper>
-      {plants.map(plant => (
-        <Product
-          key={plant.plantId}
-          title={plant.plantTitle}
-          src={plant.plantImage.title}
-          slug={plant.plantSlug}
-          price={plant.plantPrice}
-        />
-      ))}
+      {[...plants].reverse().map(plant => {
+        const nursery = nurseries.find(n => n.id === plant.nurseryId);
+        return (
+          <Product
+            key={plant.plantId || plant.id}
+            title={plant.plantTitle}
+            src={typeof plant.plantImage === 'string' ? plant.plantImage : plant.plantImage?.url || plant.plantImage?.title}
+            slug={plant.plantSlug}
+            price={plant.plantPrice}
+            nurseryName={nursery ? nursery.name : (plant.nurseryId === 1 ? 'Green Thumb Gardens' : 'Plant Shop Admin')}
+          />
+        );
+      })}
     </StyledWrapper>
   );
 };

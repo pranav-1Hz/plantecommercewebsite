@@ -44,13 +44,14 @@ const StyledPirce = styled.span`
   font-size: 0.8rem;
 `;
 
-const Product = ({ title, src, slug, price }) => {
+const Product = ({ title, src, slug, price, nurseryName }) => {
   return (
     <StyledTitleWrapper key={title}>
       <StyledLink to={`/plants/${slug}`}>
         <StyledTitle>
           {title}
           <StyledPirce> /${price}</StyledPirce>
+          {nurseryName && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.2rem', fontWeight: 'normal' }}>By {nurseryName}</div>}
         </StyledTitle>
         <StyledImageWrapper className="image_reveal">
           <StyledImage src={src} alt={`${title} plant`} />
@@ -65,5 +66,6 @@ Product.propTypes = {
   src: PropTypes.string.isRequired,
   slug: PropTypes.string.isRequired,
   price: PropTypes.number.isRequired,
+  nurseryName: PropTypes.string,
 };
 export default Product;

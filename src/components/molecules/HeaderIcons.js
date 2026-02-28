@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useContext } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -6,6 +6,7 @@ import Button from '../atoms/Button/Button';
 import CartButton from '../atoms/Button/CartButton';
 import { fire } from '../../firebase/Firebase';
 import Loader from '../atoms/Loader/Loader';
+import { CartContext } from '../../context/CartContext';
 
 const Cart = lazy(() => import('./Cart'));
 
@@ -21,6 +22,7 @@ const StyledLink = styled(Link)`
 `;
 
 const HeaderIcons = ({ isSinglePlant }) => {
+  const { user } = useContext(CartContext);
   const [CartOpen, setCartOpen] = useState(false);
   const [pageWidth, setPageWidth] = useState(window.innerWidth);
 
@@ -45,14 +47,23 @@ const HeaderIcons = ({ isSinglePlant }) => {
           </Suspense>
         </>
       )}
-      {isSinglePlant ? (
-        <Button logoutSinglePlant aria-label="logut" onClick={handlelogout}>
-          logout
-        </Button>
+      {user ? (
+        <>
+          <StyledLink to={user.role === 'admin' ? '/admin' : user.role === 'nursery' ? '/nursery' : '/account'}>
+            <Button logoutSinglePlant aria-label={user.role === 'user' ? 'Account' : 'Dashboard'}>
+              {user.role === 'user' ? 'Account' : 'Dashboard'}
+            </Button>
+          </StyledLink>
+          <Button logoutMain aria-label="Logout" onClick={handlelogout}>
+            Logout
+          </Button>
+        </>
       ) : (
-        <Button logoutMain aria-label="logut" onClick={handlelogout}>
-          logout
-        </Button>
+        <StyledLink to="/login">
+          <Button logoutMain aria-label="Login">
+            Login
+          </Button>
+        </StyledLink>
       )}
     </StyledWrapper>
   );

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { CartContext } from '../../context/CartContext';
 import Heroplant from '../atoms/Plant/Plant';
 import StyledHeading from '../atoms/Heading/Heading';
+import Button from '../atoms/Button/Button';
 
 const StyledWrapper = styled.section`
   display: flex;
@@ -45,11 +46,23 @@ const Hero = () => {
     clearColor();
   });
 
+  const handleShopNow = () => {
+    const productsSection = document.getElementById('products');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <StyledWrapper>
       <StyledWrapperHeading>
         <StyledHeading main>Say hello to </StyledHeading>
         <StyledHeading main>home plants!</StyledHeading>
+        <div style={{ marginTop: '2rem' }}>
+          <Button secondary onClick={handleShopNow}>
+            Shop Now
+          </Button>
+        </div>
       </StyledWrapperHeading>
       <Heroplant />
     </StyledWrapper>

@@ -94,7 +94,7 @@ const Checkout = () => {
   return (
     <StyledWrapper>
       {pageWidth >= 1000 ? (
-        <PlantHalfPage isSinglePlant />
+        <PlantHalfPage isSinglePlant isBackArrow />
       ) : (
         <>
           <Header />

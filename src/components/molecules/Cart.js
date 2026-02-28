@@ -54,7 +54,7 @@ const Cart = ({ isVisible }) => {
         {cartItems.length ? (
           cartItems.map(cartItem => <CartProduct plant={cartItem} key={cartItem.plantTitle} />)
         ) : (
-          <span>cart is empty</span>
+          <span>Cart is empty</span>
         )}
       </StyledProductsWrapper>
       <StyledLink to="/checkout">

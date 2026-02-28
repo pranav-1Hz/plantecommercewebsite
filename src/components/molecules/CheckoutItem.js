@@ -21,6 +21,8 @@ const StyledProductImage = styled.figure`
   img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
   }
   @media only screen and (min-width: 500px) {
     width: 8.5rem;
@@ -83,7 +85,7 @@ const CheckoutItem = ({ plant }) => {
   return (
     <StyledWrapper>
       <StyledProductImage>
-        <img src={plantImage.title} alt="pic" />
+        <img src={typeof plantImage === 'string' ? plantImage : (plantImage?.url || plantImage?.title || '')} alt={plantTitle} />
       </StyledProductImage>
       <StyledTitle>{plantTitle}</StyledTitle>
       <StyledQuantityWrapper>

@@ -62,6 +62,7 @@ const PlantHalfPage = ({ isLoginPage, isSinglePlant, isBackArrow }) => {
 
         {isLoginPage ? null : <HeaderIcons isSinglePlant={isSinglePlant} />}
       </StyledLogoWrapper>
+
       <Heroplant />
     </StyledPlantWrapper>
   );
