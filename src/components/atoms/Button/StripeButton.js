@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { CartContext } from '../../../context/CartContext';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import Button from './Button';
 
 const PortalOverlay = styled.div`
@@ -79,28 +81,47 @@ const PaymentBadge = styled.div`
 const MockInput = styled.input`
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid ${({ error }) => (error ? '#e74c3c' : '#ccc')};
   border-radius: 4px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   font-size: 16px;
   &::placeholder {
     color: #999;
   }
 `;
 
+const ErrorMsg = styled.span`
+  color: #e74c3c;
+  font-size: 0.75rem;
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+`;
+
 const CheckoutModal = ({ price, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState('card');
+  const { register, handleSubmit, errors } = useForm();
+
+  const { placeOrder } = useContext(CartContext);
   const history = useHistory();
 
-  const handleSubmit = event => {
-    event.preventDefault();
+  const onSubmit = async data => {
     setIsProcessing(true);
 
-    // Simulate network delay for payment processing
-    setTimeout(() => {
-      history.push('/success');
-    }, 1500);
+    const success = await placeOrder({
+      name: data.name,
+      phone: data.phone,
+      address: data.address,
+    });
+
+    if (success) {
+      setTimeout(() => {
+        history.push('/success');
+      }, 500);
+    } else {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -162,13 +183,101 @@ const CheckoutModal = ({ price, onClose }) => {
           </PaymentBadge>
         </PaymentOptions>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div
+            style={{
+              marginBottom: '1.5rem',
+              borderBottom: '1px solid #eee',
+              paddingBottom: '1rem',
+            }}
+          >
+            <div style={{ fontWeight: 'bold', marginBottom: '0.8rem', fontSize: '1rem' }}>
+              Shipping Information
+            </div>
+            <MockInput
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              error={errors.name}
+              ref={register({ required: 'Name is required' })}
+            />
+            {errors.name && <ErrorMsg>{errors.name.message}</ErrorMsg>}
+
+            <MockInput
+              type="tel"
+              name="phone"
+              placeholder="Phone Number (e.g. 9876543210)"
+              error={errors.phone}
+              ref={register({
+                required: 'Phone is required',
+                pattern: {
+                  value: /^[0-9]{10,15}$/,
+                  message: 'Must be 10-15 digits',
+                },
+              })}
+            />
+            {errors.phone && <ErrorMsg>{errors.phone.message}</ErrorMsg>}
+
+            <MockInput
+              type="text"
+              name="address"
+              placeholder="Delivery Address"
+              error={errors.address}
+              ref={register({
+                required: 'Address is required',
+                minLength: { value: 5, message: 'Too short' },
+              })}
+            />
+            {errors.address && <ErrorMsg>{errors.address.message}</ErrorMsg>}
+          </div>
+
+          <div style={{ fontWeight: 'bold', marginBottom: '0.8rem', fontSize: '1rem' }}>
+            Payment Details
+          </div>
           {selectedMethod === 'card' ? (
             <div style={{ marginBottom: '1.5rem' }}>
-              <MockInput type="text" placeholder="Card Number (e.g. 4242 4242...)" required />
+              <MockInput
+                type="text"
+                name="cardNumber"
+                placeholder="Card Number (e.g. 4242 4242...)"
+                error={errors.cardNumber}
+                ref={register({
+                  required: 'Card number required',
+                  pattern: { value: /^[0-9\s]{16,19}$/, message: 'Invalid card format' },
+                })}
+              />
+              {errors.cardNumber && <ErrorMsg>{errors.cardNumber.message}</ErrorMsg>}
+
               <div style={{ display: 'flex', gap: '10px' }}>
-                <MockInput type="text" placeholder="MM/YY" required style={{ flex: 1 }} />
-                <MockInput type="text" placeholder="CVC" required style={{ flex: 1 }} />
+                <div style={{ flex: 1 }}>
+                  <MockInput
+                    type="text"
+                    name="expiry"
+                    placeholder="MM/YY"
+                    error={errors.expiry}
+                    ref={register({
+                      required: 'Required',
+                      pattern: {
+                        value: /^(0[1-9]|1[0-2])\/?([0-9]{2})$/,
+                        message: 'MM/YY required',
+                      },
+                    })}
+                  />
+                  {errors.expiry && <ErrorMsg>{errors.expiry.message}</ErrorMsg>}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <MockInput
+                    type="text"
+                    name="cvc"
+                    placeholder="CVC"
+                    error={errors.cvc}
+                    ref={register({
+                      required: 'Required',
+                      pattern: { value: /^[0-9]{3,4}$/, message: '3-4 digits' },
+                    })}
+                  />
+                  {errors.cvc && <ErrorMsg>{errors.cvc.message}</ErrorMsg>}
+                </div>
               </div>
             </div>
           ) : (

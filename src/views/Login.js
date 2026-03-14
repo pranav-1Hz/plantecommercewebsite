@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
@@ -168,7 +168,8 @@ const Login = () => {
   const [resetStep, setResetStep] = useState(1); // 1: Request OTP, 2: Submit OTP
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [displayedOtp, setDisplayedOtp] = useState(''); // OTP shown on screen (dev mode)
+  const [displayedOtp, setDisplayedOtp] = useState(''); // Fallback for debugging
+  const [resendTimer, setResendTimer] = useState(0);
 
   const handleNewAccount = e => {
     e.preventDefault();
@@ -176,17 +177,36 @@ const Login = () => {
     setForgotPassword(false);
   };
 
+  useEffect(() => {
+    let interval = null;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer(t => t - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
   const handleForgotPasswordToggle = e => {
     e.preventDefault();
     setForgotPassword(!forgotPassword);
     setResetStep(1);
-    setDisplayedOtp('');
   };
 
   const handleSignin = () => {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      alert('Please enter both email and password');
+      return;
+    }
+
     fire
       .auth()
-      .signInWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(trimmedEmail, trimmedPassword)
       .then(userCredential => {
         const userEmail = userCredential.user.email;
         if (userEmail.includes('admin')) {
@@ -199,14 +219,22 @@ const Login = () => {
   };
 
   const handleSignup = () => {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const trimmedName = fullName.trim();
+    const trimmedPhone = phoneNumber.trim();
+
+    if (!trimmedEmail || !trimmedPassword || !trimmedName || !trimmedPhone) {
+      alert('All fields are required for signup');
+      return;
+    }
+
     fire
       .auth()
-      .createUserWithEmailAndPassword(email, password, fullName, phoneNumber)
-      .then(userCredential => {
+      .createUserWithEmailAndPassword(trimmedEmail, trimmedPassword, trimmedName, trimmedPhone)
+      .then(() => {
         alert('Account created successfully!');
-        setNewAccount(false); // Switch to login view or redirect directly
-        // Optional: auto-login
-        // routerHistory.push('/nursery');
+        setNewAccount(false);
       })
       .catch(error => alert(`Sign up failed: ${error.message} `));
   };
@@ -217,12 +245,9 @@ const Login = () => {
       .auth()
       .requestPasswordReset(email)
       .then(data => {
-        // Dev mode: OTP is returned in the API response and shown on screen
-        if (data.otp) {
-          setDisplayedOtp(data.otp);
-          setOtp(data.otp); // Auto-fill the OTP field
-        }
+        if (data.otp) setDisplayedOtp(data.otp);
         setResetStep(2);
+        setResendTimer(60);
       })
       .catch(err => alert(err.message));
   };
@@ -261,7 +286,6 @@ const Login = () => {
           </StyledHeadingWrapper>
 
           {forgotPassword ? (
-            // --- FORGOT PASSWORD FORM ---
             <>
               <StyledInputLabelWrapper>
                 <StyledInput
@@ -279,24 +303,22 @@ const Login = () => {
                   {displayedOtp && (
                     <div
                       style={{
-                        background: '#f0fff4',
-                        border: '2px solid #38a169',
+                        background: '#fff5f5',
+                        border: '2px solid #feb2b2',
                         borderRadius: '8px',
                         padding: '1rem',
                         margin: '1rem 0',
                         textAlign: 'center',
-                        width: '100%',
                       }}
                     >
-                      <p style={{ fontSize: '0.85rem', color: '#555', margin: '0 0 0.5rem 0' }}>
-                        🔐 Your OTP Code (Dev Mode)
+                      <p style={{ color: '#c53030', fontSize: '0.8rem', margin: '0 0 0.5rem 0' }}>
+                        ⚠️ Email delivery failed. Use this code:
                       </p>
                       <p
                         style={{
-                          fontSize: '2rem',
+                          fontSize: '1.5rem',
                           fontWeight: 'bold',
-                          letterSpacing: '0.5rem',
-                          color: '#276749',
+                          letterSpacing: '4px',
                           margin: 0,
                         }}
                       >
@@ -304,7 +326,6 @@ const Login = () => {
                       </p>
                     </div>
                   )}
-
                   <StyledInputLabelWrapper>
                     <StyledInput
                       name="otp"
@@ -335,12 +356,28 @@ const Login = () => {
                 </StyledButton>
               </StyledButtonsWrapper>
 
+              {resetStep === 2 && (
+                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                  <Button
+                    simple
+                    disabled={resendTimer > 0}
+                    onClick={handleRequestOtp}
+                    style={{
+                      fontSize: '0.9rem',
+                      color: resendTimer > 0 ? '#aaa' : '#555',
+                      cursor: resendTimer > 0 ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
+                  </Button>
+                </div>
+              )}
+
               <Button simple style={{ marginTop: '1rem' }} onClick={handleForgotPasswordToggle}>
                 Back to Login
               </Button>
             </>
           ) : (
-            // --- LOGIN / SIGNUP FORM ---
             <>
               <StyledInputLabelWrapper>
                 <StyledInput
@@ -371,20 +408,28 @@ const Login = () => {
                       name="fullName"
                       placeholder="Full Name"
                       onChange={e => setFullName(e.target.value)}
-                      ref={register({ required: newAccount })}
+                      ref={register({ required: 'Name is required' })}
                     />
                     <StyledLabel>Full Name</StyledLabel>
                   </StyledInputLabelWrapper>
+                  {errors.fullName && <Text errorMessage>{errors.fullName.message}</Text>}
 
                   <StyledInputLabelWrapper>
                     <StyledInput
                       name="phoneNumber"
-                      placeholder="Phone Number"
+                      placeholder="Phone Number (10-15 digits)"
                       onChange={e => setPhoneNumber(e.target.value)}
-                      ref={register({ required: newAccount })}
+                      ref={register({
+                        required: 'Phone is required',
+                        pattern: {
+                          value: /^[0-9]{10,15}$/,
+                          message: 'Invalid phone format',
+                        },
+                      })}
                     />
                     <StyledLabel>Phone Number</StyledLabel>
                   </StyledInputLabelWrapper>
+                  {errors.phoneNumber && <Text errorMessage>{errors.phoneNumber.message}</Text>}
                 </>
               )}
 
@@ -435,7 +480,7 @@ const Login = () => {
                   style={{ fontSize: '1rem', color: '#555' }}
                   onClick={() => routerHistory.push('/admin-login')}
                 >
-                  🛡️ Admin Login
+                  Admin Login
                 </Button>
               </div>
             </>

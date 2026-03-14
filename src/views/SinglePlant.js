@@ -11,6 +11,7 @@ import FlowerPots from '../components/molecules/FlowerPots';
 import Modal from '../components/molecules/Modal';
 import Accordion from '../components/molecules/Accordion';
 import { CartContext } from '../context/CartContext';
+import { NurseryContext } from '../context/NurseryContext';
 
 const StyledWrapper = styled.div`
   min-height: 100vh;
@@ -154,6 +155,7 @@ class SinglePlant extends React.Component {
   render() {
     const { slug } = this.state;
     const { getPlant, addItem } = this.context;
+    const { nurseries } = this.props;
     const plant = getPlant(slug);
     if (!plant) {
       return (
@@ -172,6 +174,8 @@ class SinglePlant extends React.Component {
     }
     const { plantTitle, plantPrice, plantDescription, plantType } = plant;
     const { isModal } = this.state;
+    const nursery = (nurseries || []).find(n => String(n.id) === String(plant.nurseryId));
+    const potAvailable = !nursery || nursery.flowerPotAvailable !== false;
     return (
       <StyledWrapper>
         <PlantHalfPage isSinglePlant isBackArrow />
@@ -237,6 +241,28 @@ class SinglePlant extends React.Component {
                 </Text>
               </Accordion>
 
+              {/* Nursery Info Accordion */}
+              {nursery && (
+                <Accordion title="🏡 Nursery Details">
+                  <Text main>
+                    <div style={{ display: 'grid', gap: '1rem' }}>
+                      <div>
+                        <strong>Nursery Name:</strong> {nursery.name}
+                      </div>
+                      <div>
+                        <strong>Location:</strong> {nursery.location || 'Not provided'}
+                      </div>
+                      <div>
+                        <strong>Contact:</strong> {nursery.contact || 'Not provided'}
+                      </div>
+                      <div>
+                        <strong>Phone:</strong> {nursery.phoneNumber || 'Not provided'}
+                      </div>
+                    </div>
+                  </Text>
+                </Accordion>
+              )}
+
               <Accordion title="ℹ️ More Details">
                 <Text main>
                   {plant.origin && (
@@ -260,7 +286,26 @@ class SinglePlant extends React.Component {
                 </Text>
               </Accordion>
 
-              <FlowerPots />
+              {potAvailable ? (
+                <FlowerPots />
+              ) : (
+                <div
+                  style={{
+                    padding: '2rem',
+                    background: '#f8d7da',
+                    borderRadius: '10px',
+                    textAlign: 'center',
+                    margin: '1rem 0',
+                  }}
+                >
+                  <Text main style={{ color: '#721c24', fontWeight: 'bold', fontSize: '1.4rem' }}>
+                    🚫 Flower pots unavailable
+                  </Text>
+                  <Text main style={{ color: '#856404', marginTop: '0.5rem', fontSize: '1rem' }}>
+                    This nursery does not currently offer flower pots.
+                  </Text>
+                </div>
+              )}
               <StyledPaymentWrapper>
                 <StyledTypeText price>${plantPrice}</StyledTypeText>
                 <StyledButton
@@ -285,5 +330,14 @@ class SinglePlant extends React.Component {
 
 SinglePlant.propTypes = {
   match: PropTypes.any.isRequired,
+  nurseries: PropTypes.array,
 };
-export default SinglePlant;
+
+// Wrap class component to inject NurseryContext as props
+const SinglePlantWithNurseries = props => (
+  <NurseryContext.Consumer>
+    {({ nurseries }) => <SinglePlant {...props} nurseries={nurseries} />}
+  </NurseryContext.Consumer>
+);
+
+export default SinglePlantWithNurseries;

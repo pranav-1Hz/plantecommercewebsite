@@ -97,11 +97,7 @@ class AuthClient {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Signup failed');
 
-    this.token = data.token;
-    this.currentUser = data.user;
-    localStorage.setItem('auth_token', data.token);
-    this.notify();
-    return { user: data.user };
+    return data;
   }
 
   async signInWithEmailAndPassword(email, password) {

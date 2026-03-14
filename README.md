@@ -74,3 +74,20 @@ To kill any process on port 5000:
 ## Author
 
 Developed by **Pranav**.
+
+
+
+
+Terminal Commands : 
+
+cd server
+npm run dev
+
+npm start
+
+net start mysql80
+
+netstat -ano | findstr :5000
+taskkill /F /PID 12345
+taskkill /F /IM node.exe
+

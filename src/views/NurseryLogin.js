@@ -120,10 +120,70 @@ const NurseryLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignin = () => {
+  // Forgot Password States
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetStep, setResetStep] = useState(1); // 1: Request OTP, 2: Submit OTP
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [displayedOtp, setDisplayedOtp] = useState(''); // Fallback for debugging
+  const [resendTimer, setResendTimer] = useState(0);
+
+  const handleForgotPasswordToggle = e => {
+    e.preventDefault();
+    setForgotPassword(!forgotPassword);
+    setResetStep(1);
+  };
+
+  React.useEffect(() => {
+    let interval = null;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer(t => t - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const handleRequestOtp = () => {
+    if (!email) return alert('Please enter your nursery email first');
     fire
       .auth()
-      .signInNursery(email, password)
+      .requestPasswordReset(email)
+      .then(data => {
+        if (data.otp) setDisplayedOtp(data.otp);
+        setResetStep(2);
+        setResendTimer(60);
+      })
+      .catch(err => alert(err.message));
+  };
+
+  const handleConfirmReset = () => {
+    if (!otp || !newPassword) return alert('Please fill in all fields');
+    fire
+      .auth()
+      .confirmPasswordReset(email, otp, newPassword)
+      .then(() => {
+        alert('Password reset successful! Please login.');
+        setForgotPassword(false);
+        setResetStep(1);
+      })
+      .catch(err => alert(err.message));
+  };
+
+  const handleSignin = () => {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      alert('Please enter both email and password');
+      return;
+    }
+
+    fire
+      .auth()
+      .signInNursery(trimmedEmail, trimmedPassword)
       .then(() => {
         window.location.href = '/nursery';
       })
@@ -141,32 +201,149 @@ const NurseryLogin = () => {
         <Heading>🏡 Nursery Partner</Heading>
         <Text>Manage your store and inventory</Text>
 
-        <StyledForm onSubmit={handleSubmit(handleSignin)}>
-          <StyledInputLabelWrapper>
-            <StyledInput
-              name="email"
-              placeholder="Nursery Email"
-              onChange={e => setEmail(e.target.value)}
-              ref={register({ required: true })}
-            />
-            <StyledLabel>Nursery Email</StyledLabel>
-          </StyledInputLabelWrapper>
-          {errors.email && <Text errorMessage>Email is required</Text>}
+        <StyledForm
+          onSubmit={handleSubmit(
+            forgotPassword
+              ? resetStep === 1
+                ? handleRequestOtp
+                : handleConfirmReset
+              : handleSignin,
+          )}
+        >
+          {forgotPassword ? (
+            <>
+              <StyledInputLabelWrapper>
+                <StyledInput
+                  name="resetEmail"
+                  placeholder="Enter Nursery Email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  ref={register({ required: true })}
+                />
+                <StyledLabel>Nursery Email</StyledLabel>
+              </StyledInputLabelWrapper>
 
-          <StyledInputLabelWrapper>
-            <StyledPasswordInput
-              name="password"
-              placeholder="Password"
-              onChange={e => setPassword(e.target.value)}
-              ref={register({ required: true })}
-            />
-            <StyledLabel>Password</StyledLabel>
-          </StyledInputLabelWrapper>
-          {errors.password && <Text errorMessage>Password is required</Text>}
+              {resetStep === 2 && (
+                <>
+                  {displayedOtp && (
+                    <div
+                      style={{
+                        background: '#fff5f5',
+                        border: '2px solid #feb2b2',
+                        borderRadius: '8px',
+                        padding: '1rem',
+                        margin: '1rem 0',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <p style={{ color: '#c53030', fontSize: '0.8rem', margin: '0 0 0.5rem 0' }}>
+                        ⚠️ Email delivery failed. Use this code:
+                      </p>
+                      <p
+                        style={{
+                          fontSize: '1.5rem',
+                          fontWeight: 'bold',
+                          letterSpacing: '4px',
+                          margin: 0,
+                        }}
+                      >
+                        {displayedOtp}
+                      </p>
+                    </div>
+                  )}
+                  <StyledInputLabelWrapper>
+                    <StyledInput
+                      name="otp"
+                      placeholder="Enter 6-digit OTP"
+                      value={otp}
+                      onChange={e => setOtp(e.target.value)}
+                      ref={register({ required: true })}
+                    />
+                    <StyledLabel>OTP Code</StyledLabel>
+                  </StyledInputLabelWrapper>
 
-          <Button type="submit" secondary style={{ width: '100%', marginTop: '1rem' }}>
-            Login
-          </Button>
+                  <StyledInputLabelWrapper>
+                    <StyledPasswordInput
+                      name="newPassword"
+                      placeholder="New Password"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      ref={register({ required: true, minLength: 6 })}
+                    />
+                    <StyledLabel>New Password</StyledLabel>
+                  </StyledInputLabelWrapper>
+                </>
+              )}
+
+              <Button type="submit" secondary style={{ width: '100%', marginTop: '1rem' }}>
+                {resetStep === 1 ? 'Send OTP' : 'Reset Password'}
+              </Button>
+
+              {resetStep === 2 && (
+                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                  <Button
+                    simple
+                    disabled={resendTimer > 0}
+                    onClick={handleRequestOtp}
+                    style={{
+                      fontSize: '0.9rem',
+                      color: resendTimer > 0 ? '#aaa' : '#555',
+                      cursor: resendTimer > 0 ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
+                  </Button>
+                </div>
+              )}
+              <Button
+                simple
+                style={{ marginTop: '1rem', textDecoration: 'underline' }}
+                onClick={handleForgotPasswordToggle}
+              >
+                Back to Login
+              </Button>
+            </>
+          ) : (
+            <>
+              <StyledInputLabelWrapper>
+                <StyledInput
+                  name="email"
+                  placeholder="Nursery Email"
+                  onChange={e => setEmail(e.target.value)}
+                  ref={register({
+                    required: 'Email is required',
+                    pattern: {
+                      value: /^\S+@\S+\.\S+$/,
+                      message: 'Invalid email',
+                    },
+                  })}
+                />
+                <StyledLabel>Nursery Email</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.email && <Text errorMessage>{errors.email.message}</Text>}
+
+              <StyledInputLabelWrapper>
+                <StyledPasswordInput
+                  name="password"
+                  placeholder="Password"
+                  onChange={e => setPassword(e.target.value)}
+                  ref={register({ required: true })}
+                />
+                <StyledLabel>Password</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.password && <Text errorMessage>Password is required</Text>}
+
+              <div style={{ width: '100%', textAlign: 'right', marginTop: '-1rem' }}>
+                <Button simple onClick={handleForgotPasswordToggle} style={{ fontSize: '0.9rem' }}>
+                  Forgot Password?
+                </Button>
+              </div>
+
+              <Button type="submit" secondary style={{ width: '100%', marginTop: '1rem' }}>
+                Login
+              </Button>
+            </>
+          )}
         </StyledForm>
 
         <div

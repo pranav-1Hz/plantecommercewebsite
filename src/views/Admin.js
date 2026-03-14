@@ -193,7 +193,7 @@ const renderStars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 
 const Admin = () => {
   const { nurseries, approveNursery, rejectNursery, removeNursery } = useContext(NurseryContext);
-  const { plants } = useContext(CartContext);
+  const { plants, fertilizers } = useContext(CartContext);
   const [feedbacks, setFeedbacks] = useState([]);
 
   useEffect(() => {
@@ -241,6 +241,13 @@ const Admin = () => {
             <StatInfo>
               <StatValue>{approvedCount}</StatValue>
               <StatLabel>Active Nurseries</StatLabel>
+            </StatInfo>
+          </StyledStatCard>
+          <StyledStatCard>
+            <StatIcon color="#f3e5f5">🧪</StatIcon>
+            <StatInfo>
+              <StatValue>{fertilizers.length}</StatValue>
+              <StatLabel>Total Fertilizers</StatLabel>
             </StatInfo>
           </StyledStatCard>
           <StyledStatCard>
@@ -328,6 +335,7 @@ const Admin = () => {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Nursery</th>
                 <th>Rating</th>
                 <th>Category</th>
                 <th>Message</th>
@@ -343,6 +351,11 @@ const Admin = () => {
                     <span style={{ color: '#999', fontSize: '0.85rem' }}>{f.email}</span>
                   </td>
                   <td>
+                    <span style={{ fontSize: '0.9rem', color: '#555' }}>
+                      {nurseries.find(n => String(n.id) === String(f.nurseryId))?.name || 'General'}
+                    </span>
+                  </td>
+                  <td>
                     <Stars>{renderStars(f.rating)}</Stars>
                   </td>
                   <td>
@@ -356,7 +369,7 @@ const Admin = () => {
               ))}
               {recentFeedback.length === 0 && (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center', color: '#888' }}>
+                  <td colSpan="6" style={{ textAlign: 'center', color: '#888' }}>
                     No feedback yet
                   </td>
                 </tr>

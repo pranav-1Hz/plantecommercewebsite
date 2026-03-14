@@ -96,12 +96,19 @@ const StyledPasswordInput = styled(PasswordInput)`
   ${inputStyles}
 `;
 
+const StyledFieldRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  margin-bottom: 1.2rem;
+`;
+
 const StyledInputLabelWrapper = styled.div`
   display: flex;
   flex-flow: column-reverse;
   position: relative;
-  width: 100%;
-  margin-bottom: 1.5rem;
+  flex: 1;
 
   input ~ label {
     line-height: 1;
@@ -123,6 +130,15 @@ const StyledLabel = styled.label`
   pointer-events: none;
 `;
 
+const StyledError = styled.span`
+  color: #e74c3c;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 40px;
+  text-align: left;
+`;
+
 const StyledHeading = styled(Heading)`
   text-transform: uppercase;
   font-size: 3rem;
@@ -136,15 +152,17 @@ const NurseryRegister = () => {
   const [success, setSuccess] = useState(false);
 
   const onSubmit = data => {
+    const trimmedData = {
+      email: data.contactEmail.trim(),
+      password: data.password.trim(),
+      storeName: data.nurseryName.trim(),
+      location: data.location.trim(),
+      phoneNumber: data.phoneNumber.trim(),
+    };
+
     fire
       .auth()
-      .registerNursery({
-        email: data.contactEmail,
-        password: data.password,
-        storeName: data.nurseryName,
-        location: data.location,
-        phoneNumber: '000-000-0000', // Placeholder
-      })
+      .registerNursery(trimmedData)
       .then(() => {
         setSuccess(true);
         setTimeout(() => {
@@ -172,45 +190,74 @@ const NurseryRegister = () => {
           <StyledForm onSubmit={handleSubmit(onSubmit)}>
             <StyledHeading>Register Nursery</StyledHeading>
 
-            <StyledInputLabelWrapper>
-              <StyledInput
-                name="nurseryName"
-                placeholder="Nursery Name"
-                ref={register({ required: true })}
-              />
-              <StyledLabel>Nursery Name</StyledLabel>
-            </StyledInputLabelWrapper>
-            {errors.nurseryName && <Text errorMessage>Name is required</Text>}
+            <StyledFieldRow>
+              <StyledInputLabelWrapper>
+                <StyledInput
+                  name="nurseryName"
+                  placeholder="Nursery Name"
+                  ref={register({ required: 'Nursery Name is required' })}
+                />
+                <StyledLabel>Nursery Name</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.nurseryName && <StyledError>{errors.nurseryName.message}</StyledError>}
+            </StyledFieldRow>
 
-            <StyledInputLabelWrapper>
-              <StyledInput
-                name="location"
-                placeholder="Location (City, State)"
-                ref={register({ required: true })}
-              />
-              <StyledLabel>Location (City, State)</StyledLabel>
-            </StyledInputLabelWrapper>
-            {errors.location && <Text errorMessage>Location is required</Text>}
+            <StyledFieldRow>
+              <StyledInputLabelWrapper>
+                <StyledInput
+                  name="location"
+                  placeholder="Location (City, State)"
+                  ref={register({ required: 'Location is required' })}
+                />
+                <StyledLabel>Location (City, State)</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.location && <StyledError>{errors.location.message}</StyledError>}
+            </StyledFieldRow>
 
-            <StyledInputLabelWrapper>
-              <StyledInput
-                name="contactEmail"
-                placeholder="Contact Email"
-                ref={register({ required: true, pattern: /^\S+@\S+$/i })}
-              />
-              <StyledLabel>Contact Email</StyledLabel>
-            </StyledInputLabelWrapper>
-            {errors.contactEmail && <Text errorMessage>Valid email is required</Text>}
+            <StyledFieldRow>
+              <StyledInputLabelWrapper>
+                <StyledInput
+                  name="contactEmail"
+                  placeholder="Contact Email"
+                  ref={register({
+                    required: 'Email is required',
+                    pattern: {
+                      value: /^\S+@\S+\.\S+$/,
+                      message: 'Invalid email',
+                    },
+                  })}
+                />
+                <StyledLabel>Contact Email</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.contactEmail && <StyledError>{errors.contactEmail.message}</StyledError>}
+            </StyledFieldRow>
 
-            <StyledInputLabelWrapper>
-              <StyledPasswordInput
-                name="password"
-                placeholder="Password"
-                ref={register({ required: true, minLength: 6 })}
-              />
-              <StyledLabel>Password</StyledLabel>
-            </StyledInputLabelWrapper>
-            {errors.password && <Text errorMessage>Password (min 6 chars) is required</Text>}
+            <StyledFieldRow>
+              <StyledInputLabelWrapper>
+                <StyledInput
+                  name="phoneNumber"
+                  placeholder="Phone Number"
+                  ref={register({
+                    required: true,
+                    pattern: /^[0-9]{10,15}$/,
+                  })}
+                />
+                <StyledLabel>Phone Number</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.phoneNumber && <StyledError>10-15 digits</StyledError>}
+            </StyledFieldRow>
+
+            <StyledFieldRow>
+              <StyledInputLabelWrapper>
+                <StyledPasswordInput
+                  name="password"
+                  placeholder="Password"
+                  ref={register({ required: true, minLength: 6 })}
+                />
+                <StyledLabel>Password</StyledLabel>
+              </StyledInputLabelWrapper>
+              {errors.password && <StyledError>Min 6 chars</StyledError>}
+            </StyledFieldRow>
 
             <Button type="submit" secondary style={{ marginTop: '1rem', width: '100%' }}>
               Submit Application

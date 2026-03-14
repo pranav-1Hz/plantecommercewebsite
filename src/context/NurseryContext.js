@@ -18,6 +18,7 @@ const NurseryProvider = ({ children }) => {
   const [nurseries, setNurseries] = useState([]);
   const [currentRole, setCurrentRole] = useState('admin');
   const [currentUserNurseryId, setCurrentUserNurseryId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const handleSetCurrentRole = role => {
     setCurrentRole(role);
@@ -37,6 +38,8 @@ const NurseryProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Failed to fetch nurseries:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,6 +121,7 @@ const NurseryProvider = ({ children }) => {
         setCurrentRole: handleSetCurrentRole,
         currentUserNurseryId,
         setCurrentUserNurseryId,
+        loading,
       }}
     >
       {children}

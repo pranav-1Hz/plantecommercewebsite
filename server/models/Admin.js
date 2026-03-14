@@ -20,6 +20,12 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.STRING,
     defaultValue: 'admin',
   },
+  otp: {
+    type: DataTypes.STRING,
+  },
+  otpExpires: {
+    type: DataTypes.DATE,
+  },
 });
 
 module.exports = Admin;

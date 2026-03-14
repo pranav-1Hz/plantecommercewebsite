@@ -2,6 +2,7 @@ const router = require('express').Router();
 const User = require('../models/User');
 const Admin = require('../models/Admin');
 const Nursery = require('../models/Nursery');
+const Order = require('../models/Order'); // Added Order model import
 const Feedback = require('../models/Feedback');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -103,8 +104,10 @@ router.post('/request-reset', async (req, res) => {
     }
 
     res.json({
-      message: emailSent ? `OTP sent to ${email}` : 'OTP generated (email not configured)',
-      otp: emailSent ? undefined : otp, // Only expose OTP in response if email not configured
+      message: emailSent
+        ? `OTP sent to ${email}`
+        : 'Email delivery failed. OTP is shown below for debugging.',
+      otp: emailSent ? undefined : otp, // Fallback for debugging
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -113,23 +116,38 @@ router.post('/request-reset', async (req, res) => {
 
 router.post('/reset-password', async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    let { email, otp, newPassword } = req.body;
+    if (otp) otp = otp.trim();
 
     // Check all collections
     let user = await User.findOne({ where: { email } });
     if (!user) user = await Admin.findOne({ where: { email } });
     if (!user) user = await Nursery.findOne({ where: { email } });
 
-    if (!user || user.otp !== otp || user.otpExpires < Date.now()) {
-      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found in any collection' });
+    }
+
+    if (user.otp !== otp) {
+      console.log(`❌ OTP Mismatch: Provided "${otp}" | Database "${user.otp}"`);
+      return res.status(400).json({ message: 'The OTP code you entered is incorrect' });
+    }
+
+    if (new Date(user.otpExpires).getTime() < Date.now()) {
+      console.log(
+        `❌ OTP Expired: Exp "${new Date(
+          user.otpExpires,
+        ).toLocaleString()}" | Now "${new Date().toLocaleString()}"`,
+      );
+      return res.status(400).json({ message: 'This OTP has expired. Please request a new one.' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     user.password = hashedPassword;
-    user.otp = undefined;
-    user.otpExpires = undefined;
+    user.otp = null;
+    user.otpExpires = null;
     await user.save();
 
     res.json({ message: 'Password reset successfully' });
@@ -242,7 +260,11 @@ router.get('/nurseries', async (req, res) => {
         name: n.storeName,
         location: n.location,
         contact: n.email,
+        phoneNumber: n.phoneNumber,
         status: n.status,
+        totalSales: n.totalSales,
+        rating: n.rating,
+        flowerPotAvailable: n.flowerPotAvailable !== false,
       })),
     );
   } catch (err) {
@@ -263,6 +285,16 @@ router.put('/nurseries/:id/reject', async (req, res) => {
   try {
     await Nursery.update({ status: 'rejected' }, { where: { id: req.params.id } });
     res.json({ message: 'Nursery rejected' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/nurseries/:id/flower-pot', async (req, res) => {
+  try {
+    const { available } = req.body;
+    await Nursery.update({ flowerPotAvailable: !!available }, { where: { id: req.params.id } });
+    res.json({ message: 'Flower pot availability updated', flowerPotAvailable: !!available });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -316,6 +348,8 @@ router.post('/me', async (req, res) => {
       uid: user.id,
       email: user.email,
       role: endpointRole,
+      totalSales: user.totalSales,
+      rating: user.rating,
     };
 
     if (user.fullName) safeUser.displayName = user.fullName;
@@ -330,21 +364,51 @@ router.post('/me', async (req, res) => {
 
 // --- FEEDBACK ROUTES ---
 
-// Submit feedback (public)
+// Submit feedback (General fallback or specific)
 router.post('/feedback', async (req, res) => {
   try {
-    const { name, email, rating, category, message } = req.body;
+    const { name, email, rating, category, message, nurseryId, orderId, userId } = req.body;
     if (!name || !email || !rating || !message) {
       return res.status(400).json({ message: 'Name, email, rating, and message are required.' });
     }
+
     const feedback = await Feedback.create({
       name,
       email,
       rating: Number(rating),
-      category: category || 'General',
+      category: category || (nurseryId ? 'Nursery Rating' : 'General'),
       message,
+      nurseryId: nurseryId || null,
+      orderId: orderId || null,
+      userId: userId || null,
     });
+
+    // If linked to an order, update order and nursery ratings
+    if (orderId && nurseryId) {
+      await Order.update({ isRated: true }, { where: { id: orderId } });
+      const allFeedback = await Feedback.findAll({ where: { nurseryId } });
+      const totalRating = allFeedback.reduce((sum, f) => sum + f.rating, 0);
+      const avgRating = (totalRating / allFeedback.length).toFixed(1);
+      await Nursery.update({ rating: avgRating }, { where: { id: nurseryId } });
+    }
+
     res.json({ message: 'Feedback submitted successfully!', feedback });
+  } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError' && (req.body.orderId || req.body.nurseryId)) {
+      return res.status(400).json({ message: 'You have already rated this order.' });
+    }
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get feedback for a specific nursery
+router.get('/feedback/nursery/:nurseryId', async (req, res) => {
+  try {
+    const feedbacks = await Feedback.findAll({
+      where: { nurseryId: req.params.nurseryId },
+      order: [['createdAt', 'DESC']],
+    });
+    res.json(feedbacks);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -412,5 +476,114 @@ router.delete('/contact/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// --- ORDER ROUTES ---
+
+// Place order (Customer)
+router.post('/orders', async (req, res) => {
+  try {
+    const {
+      userId,
+      nurseryId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      totalAmount,
+      items,
+    } = req.body;
+
+    if (!userId || !nurseryId || !items || !totalAmount) {
+      return res.status(400).json({ message: 'Missing order details' });
+    }
+
+    const order = await Order.create({
+      userId,
+      nurseryId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      totalAmount,
+      items, // Expecting JSON array
+      status: 'pending',
+    });
+
+    res.status(201).json({ message: 'Order placed successfully!', order });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get user orders (History)
+router.get('/orders/user/:userId', async (req, res) => {
+  try {
+    const orders = await Order.findAll({
+      where: { userId: req.params.userId },
+      order: [['createdAt', 'DESC']],
+    });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get nursery orders (Dashboard)
+router.get('/orders/nursery/:nurseryId', async (req, res) => {
+  try {
+    const orders = await Order.findAll({
+      where: { nurseryId: req.params.nurseryId },
+      order: [['createdAt', 'DESC']],
+    });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update order status (Nursery)
+router.put('/orders/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const orderId = req.params.id;
+
+    // 1. Fetch the order to see current status and nursery
+    const order = await Order.findByPk(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const previousStatus = order.status;
+
+    // 2. Update the status
+    order.status = status;
+    await order.save();
+
+    // 3. Logic: Adjust nursery sales based on status change
+    if (status === 'delivered' && previousStatus !== 'delivered') {
+      // Add to sales if newly delivered
+      const nursery = await Nursery.findByPk(order.nurseryId);
+      if (nursery) {
+        const currentSales = Number(nursery.totalSales || 0);
+        const orderAmount = Number(order.totalAmount || 0);
+        nursery.totalSales = currentSales + orderAmount;
+        await nursery.save();
+      }
+    } else if (previousStatus === 'delivered' && status !== 'delivered') {
+      // Subtract from sales if was delivered but now cancelled/changed back
+      const nursery = await Nursery.findByPk(order.nurseryId);
+      if (nursery) {
+        const currentSales = Number(nursery.totalSales || 0);
+        const orderAmount = Number(order.totalAmount || 0);
+        nursery.totalSales = Math.max(0, currentSales - orderAmount); // Prevent negative sales
+        await nursery.save();
+      }
+    }
+
+    res.json({ message: 'Order status updated', status: order.status });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- THE END ---
 
 module.exports = router;

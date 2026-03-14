@@ -73,6 +73,8 @@ const Header = () => (
         <NavDot>•</NavDot>
         <NavLink to="/plants">All Plants</NavLink>
         <NavDot>•</NavDot>
+        <NavLink to="/fertilizers">Fertilizers</NavLink>
+        <NavDot>•</NavDot>
         <NavLink to="/feedback">Feedback</NavLink>
         <NavDot>•</NavDot>
         <NavLink to="/contact">Contact</NavLink>

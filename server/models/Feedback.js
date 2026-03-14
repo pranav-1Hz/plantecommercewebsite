@@ -15,6 +15,19 @@ const Feedback = sequelize.define('Feedback', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  nurseryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // Allow general feedback too
+  },
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    unique: true, // Only one rating per order
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   rating: {
     type: DataTypes.INTEGER,
     allowNull: false,

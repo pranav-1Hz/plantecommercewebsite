@@ -23,6 +23,7 @@ require('./models/Admin');
 require('./models/Nursery');
 require('./models/Feedback');
 require('./models/Contact');
+require('./models/Order');
 
 // Database Connection
 sequelize

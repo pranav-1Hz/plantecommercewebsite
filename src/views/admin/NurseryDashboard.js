@@ -308,8 +308,10 @@ const CancelBtn = styled.button`
 
 /* ─── Component ───────────────────────────────────────────── */
 const NurseryDashboard = () => {
-  const { user, plants, removePlant, addPlant } = useContext(CartContext);
-  const { nurseries } = useContext(NurseryContext);
+  const { user, plants, removePlant, addPlant, fertilizers, removeFertilizer } = useContext(
+    CartContext,
+  );
+  const { nurseries, loading } = useContext(NurseryContext);
 
   const [editingPlant, setEditingPlant] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -320,6 +322,98 @@ const NurseryDashboard = () => {
   });
 
   const myNursery = nurseries.find(n => n.contact === user?.email || n.email === user?.email);
+
+  const [myPlants, setMyPlants] = useState([]);
+  const [myFertilizers, setMyFertilizers] = useState([]);
+  const [flowerPotAvailable, setFlowerPotAvailable] = useState(true);
+
+  useEffect(() => {
+    if (myNursery) {
+      setFlowerPotAvailable(myNursery.flowerPotAvailable !== false);
+    }
+  }, [myNursery]);
+
+  useEffect(() => {
+    if (myNursery && fertilizers.length > 0) {
+      setMyFertilizers(fertilizers.filter(f => String(f.nurseryId) === String(myNursery.id)));
+    }
+  }, [myNursery, fertilizers]);
+
+  const toggleFlowerPot = async () => {
+    if (!myNursery) return;
+    const newValue = !flowerPotAvailable;
+    setFlowerPotAvailable(newValue);
+    try {
+      await fetch(`http://localhost:5000/api/nurseries/${myNursery.id}/flower-pot`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ available: newValue }),
+      });
+    } catch (err) {
+      console.error('Failed to toggle flower pot:', err);
+      setFlowerPotAvailable(!newValue); // rollback
+    }
+  };
+
+  useEffect(() => {
+    if (myNursery && plants.length > 0) {
+      setMyPlants(plants.filter(p => String(p.nurseryId) === String(myNursery.id)));
+    }
+  }, [myNursery, plants]);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [nurseryFeedbacks, setNurseryFeedbacks] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(true);
+
+  // Auto-reload data
+  useEffect(() => {
+    if (myNursery && myNursery.id) {
+      // Fetch feedback
+      fetch(`http://localhost:5000/api/feedback/nursery/${myNursery.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setNurseryFeedbacks(Array.isArray(data) ? data : []);
+          setFeedbackLoading(false);
+        })
+        .catch(err => {
+          console.error('Feedback error:', err);
+          setFeedbackLoading(false);
+        });
+    }
+  }, [myNursery]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!myNursery) return;
+      try {
+        const res = await fetch(`http://localhost:5000/api/orders/nursery/${myNursery.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setOrders(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch orders:', err);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [myNursery]);
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setOrders(orders.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
+      }
+    } catch (err) {
+      console.error('Failed to update status:', err);
+    }
+  };
 
   // useEffect must be called unconditionally before any early returns
   useEffect(() => {
@@ -345,11 +439,31 @@ const NurseryDashboard = () => {
     }
   }, [myNursery]);
 
-  if (!myNursery && nurseries.length > 0) {
+  if (loading) {
     return (
       <AdminTemplate>
         <StyledDashboard>
           <Heading>Loading Nursery Data...</Heading>
+        </StyledDashboard>
+      </AdminTemplate>
+    );
+  }
+
+  if (!myNursery) {
+    return (
+      <AdminTemplate>
+        <StyledDashboard>
+          <Heading>Nursery Not Found</Heading>
+          <Text>
+            We couldn&apos;t find a nursery account associated with your email: {user?.email}
+          </Text>
+          <Button
+            onClick={() => {
+              window.location.href = '/';
+            }}
+          >
+            Return Home
+          </Button>
         </StyledDashboard>
       </AdminTemplate>
     );
@@ -375,8 +489,6 @@ const NurseryDashboard = () => {
       </AdminTemplate>
     );
   }
-
-  const myPlants = plants.filter(p => myNursery && String(p.nurseryId) === String(myNursery.id));
 
   const openEdit = plant => {
     setEditingPlant(plant);
@@ -667,33 +779,81 @@ const NurseryDashboard = () => {
             <Text>My Plants</Text>
           </StyledStatCard>
           <StyledStatCard>
-            <StyledStatValue>$1,250</StyledStatValue>
+            <StyledStatValue>
+              $
+              {Number(myNursery.totalSales || 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </StyledStatValue>
             <Text>Total Sales</Text>
           </StyledStatCard>
           <StyledStatCard>
-            <StyledStatValue>4.8</StyledStatValue>
+            <StyledStatValue>{Number(myNursery.rating || 4.5).toFixed(1)}</StyledStatValue>
             <Text>Rating</Text>
+          </StyledStatCard>
+          <StyledStatCard>
+            <StyledStatValue style={{ fontSize: '2rem' }}>
+              {flowerPotAvailable ? '🪴' : '❌'}
+            </StyledStatValue>
+            <Text>Flower Pot</Text>
+            <button
+              onClick={toggleFlowerPot}
+              style={{
+                marginTop: '1rem',
+                padding: '0.6rem 1.5rem',
+                border: 'none',
+                borderRadius: '20px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.9rem',
+                fontFamily: 'inherit',
+                background: flowerPotAvailable ? '#d4edda' : '#f8d7da',
+                color: flowerPotAvailable ? '#155724' : '#721c24',
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {flowerPotAvailable ? '✅ Available' : '🚫 Unavailable'}
+            </button>
           </StyledStatCard>
         </StyledStatsGrid>
 
         <StyledSection>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
             <Heading>My Plants</Heading>
-            <Link to="/nursery/add-plant" style={{ textDecoration: 'none' }}>
+            {myNursery.status === 'approved' ? (
+              <Link to="/nursery/add-plant" style={{ textDecoration: 'none' }}>
+                <button
+                  style={{
+                    padding: '1rem 2rem',
+                    background: '#304c40',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  + Add New Plant
+                </button>
+              </Link>
+            ) : (
               <button
+                disabled
                 style={{
                   padding: '1rem 2rem',
-                  background: '#304c40',
-                  color: 'white',
+                  background: '#ccc',
+                  color: '#666',
                   border: 'none',
                   borderRadius: '5px',
-                  cursor: 'pointer',
+                  cursor: 'not-allowed',
                   fontWeight: 'bold',
                 }}
+                title="Your account must be approved before adding plants"
               >
-                + Add New Plant
+                + Add New Plant (Locked)
               </button>
-            </Link>
+            )}
           </div>
 
           <StyledTable>
@@ -701,7 +861,6 @@ const NurseryDashboard = () => {
               <tr>
                 <StyledTh>Plant Name</StyledTh>
                 <StyledTh>Price</StyledTh>
-                <StyledTh>Views</StyledTh>
                 <StyledTh>Stock Status</StyledTh>
                 <StyledTh>Actions</StyledTh>
               </tr>
@@ -716,7 +875,6 @@ const NurseryDashboard = () => {
                       <strong>{plant.plantTitle}</strong>
                     </StyledTd>
                     <StyledTd>${plant.plantPrice}</StyledTd>
-                    <StyledTd>{Math.floor(Math.random() * 100) + 10}</StyledTd>
                     <StyledTd>
                       <span style={{ color: 'green' }}>In Stock</span>
                     </StyledTd>
@@ -736,8 +894,90 @@ const NurseryDashboard = () => {
                 ))}
               {myPlants.length === 0 && (
                 <tr>
-                  <StyledTd colSpan="5" style={{ textAlign: 'center' }}>
+                  <StyledTd colSpan="4" style={{ textAlign: 'center' }}>
                     No plants added yet. Start adding your collection!
+                  </StyledTd>
+                </tr>
+              )}
+            </tbody>
+          </StyledTable>
+        </StyledSection>
+
+        <StyledSection>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+            <Heading>My Fertilizers</Heading>
+            {myNursery.status === 'approved' ? (
+              <Link to="/nursery/add-fertilizer" style={{ textDecoration: 'none' }}>
+                <button
+                  style={{
+                    padding: '1rem 2rem',
+                    background: '#304c40',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  + Add New Fertilizer
+                </button>
+              </Link>
+            ) : (
+              <button
+                disabled
+                style={{
+                  padding: '1rem 2rem',
+                  background: '#ccc',
+                  color: '#666',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'not-allowed',
+                  fontWeight: 'bold',
+                }}
+                title="Your account must be approved"
+              >
+                + Add New Fertilizer (Locked)
+              </button>
+            )}
+          </div>
+
+          <StyledTable>
+            <thead>
+              <tr>
+                <StyledTh>Name</StyledTh>
+                <StyledTh>Price</StyledTh>
+                <StyledTh>Weight</StyledTh>
+                <StyledTh>Actions</StyledTh>
+              </tr>
+            </thead>
+            <tbody>
+              {myFertilizers.length > 0 ? (
+                myFertilizers
+                  .slice()
+                  .reverse()
+                  .map(fertilizer => (
+                    <tr key={fertilizer.id}>
+                      <StyledTd>
+                        <strong>{fertilizer.name}</strong>
+                      </StyledTd>
+                      <StyledTd>${fertilizer.price}</StyledTd>
+                      <StyledTd>{fertilizer.weight}</StyledTd>
+                      <StyledTd>
+                        <DeleteBtn
+                          onClick={() => {
+                            if (window.confirm('Delete this fertilizer?'))
+                              removeFertilizer(fertilizer.id);
+                          }}
+                        >
+                          🗑️ Delete
+                        </DeleteBtn>
+                      </StyledTd>
+                    </tr>
+                  ))
+              ) : (
+                <tr>
+                  <StyledTd colSpan="4" style={{ textAlign: 'center' }}>
+                    No fertilizers added yet.
                   </StyledTd>
                 </tr>
               )}
@@ -762,6 +1002,177 @@ const NurseryDashboard = () => {
             </p>
           </div>
         )}
+        <StyledSection style={{ marginTop: '4rem' }}>
+          <Heading>📦 Incoming Orders</Heading>
+          {ordersLoading ? (
+            <Text>Loading orders...</Text>
+          ) : orders.length === 0 ? (
+            <Text>No orders yet.</Text>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
+                    <th style={{ padding: '1rem' }}>Order ID</th>
+                    <th style={{ padding: '1rem' }}>Customer</th>
+                    <th style={{ padding: '1rem' }}>Items</th>
+                    <th style={{ padding: '1rem' }}>Total</th>
+                    <th style={{ padding: '1rem' }}>Status</th>
+                    <th style={{ padding: '1rem' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map(order => (
+                    <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ padding: '1rem' }}>#{order.id}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ fontWeight: 'bold' }}>{order.customerName}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                          {order.customerPhone}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#666', maxWidth: '200px' }}>
+                          {order.shippingAddress}
+                        </div>
+                      </td>
+                      <td style={{ padding: '1rem' }}>
+                        {(() => {
+                          const items =
+                            typeof order.items === 'string'
+                              ? JSON.parse(order.items)
+                              : order.items || [];
+                          return items.map((item, idx) => (
+                            <div key={idx} style={{ fontSize: '0.9rem' }}>
+                              {item.quantity}x {item.plantTitle}
+                            </div>
+                          ));
+                        })()}
+                      </td>
+                      <td style={{ padding: '1rem' }}>${order.totalAmount}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <StyledStatus
+                          status={order.status}
+                          style={{
+                            fontSize: '0.7rem',
+                            padding: '0.3rem 0.6rem',
+                            background:
+                              order.status === 'delivered'
+                                ? '#d4edda'
+                                : order.status === 'processing'
+                                ? '#fff3cd'
+                                : '#eee',
+                            color:
+                              order.status === 'delivered'
+                                ? '#155724'
+                                : order.status === 'processing'
+                                ? '#856404'
+                                : '#666',
+                          }}
+                        >
+                          {order.status.toUpperCase()}
+                        </StyledStatus>
+                      </td>
+                      <td style={{ padding: '1rem' }}>
+                        <select
+                          value={order.status}
+                          onChange={e => updateOrderStatus(order.id, e.target.value)}
+                          style={{
+                            padding: '0.4rem',
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                          }}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </StyledSection>
+        {/* Customer Feedback Section */}
+        <StyledSection style={{ marginTop: '3rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <Heading small>💬 Customer Feedback & Ratings</Heading>
+            <div
+              style={{
+                background: '#e8f5e9',
+                padding: '0.4rem 1rem',
+                borderRadius: '20px',
+                color: '#2e7d32',
+                fontWeight: 'bold',
+              }}
+            >
+              Avg. Rating: {myNursery ? myNursery.rating : '0.0'} ⭐
+            </div>
+          </div>
+
+          {feedbackLoading ? (
+            <Text>Loading feedback...</Text>
+          ) : nurseryFeedbacks.length === 0 ? (
+            <Text>No feedback received yet. Keep up the good work! 🌱</Text>
+          ) : (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '1.5rem',
+              }}
+            >
+              {nurseryFeedbacks.map(f => (
+                <div
+                  key={f.id}
+                  style={{
+                    background: '#f9f9f9',
+                    padding: '1.5rem',
+                    borderRadius: '12px',
+                    borderLeft: '4px solid #304c40',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    <strong style={{ fontSize: '1.1rem' }}>{f.name}</strong>
+                    <span style={{ color: '#f1c40f' }}>
+                      {'★'.repeat(f.rating)}
+                      {'☆'.repeat(5 - f.rating)}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+                    {f.message}
+                  </p>
+                  <div
+                    style={{
+                      fontSize: '0.8rem',
+                      color: '#999',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <span>Order #{f.orderId}</span>
+                    <span>{new Date(f.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </StyledSection>
       </StyledDashboard>
     </AdminTemplate>
   );

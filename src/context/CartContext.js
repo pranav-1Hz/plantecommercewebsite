@@ -13,13 +13,18 @@ import {
 export const CartContext = createContext({
   plants: [],
   filtredPlants: [],
+  fertilizers: [],
+  filtredFertilizers: [],
   cartItems: [],
   addItem: () => {},
   addPlant: () => {},
   removePlant: () => {},
+  addFertilizer: () => {},
+  removeFertilizer: () => {},
   removeItem: () => {},
   clearItemFromCart: () => {},
   getPlant: () => {},
+  getFertilizer: () => {},
   handleChange: () => {},
   filterPlants: [],
   cartItemsCount: 0,
@@ -53,6 +58,9 @@ const CartProvider = ({ children, user }) => {
   const [hex2, setHex2] = useState('#485550');
   const [hex3, setHex3] = useState('#4B6358');
   const [loading, setLoading] = useState(true);
+  const [fertilizers, setFertilizers] = useState([]);
+  const [filtredFertilizers, setFiltredFertilizers] = useState([]);
+  const [localFertilizers, setLocalFertilizers] = useState([]);
 
   const changeColor = e => {
     const color1 = e.target.getAttribute('data-hex1');
@@ -76,6 +84,11 @@ const CartProvider = ({ children, user }) => {
     const templatePlants = [...plants];
     const plantSlug = templatePlants.find(plant => plant.plantSlug === slug);
     return plantSlug;
+  };
+
+  const getFertilizer = slug => {
+    const templateFertilizers = [...fertilizers];
+    return templateFertilizers.find(f => f.slug === slug);
   };
 
   const handleChangeSearch = e => {
@@ -163,6 +176,30 @@ const CartProvider = ({ children, user }) => {
     setFiltredPlants(prev => [...prev, newPlant]);
   };
 
+  // Load local fertilizers on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('localFertilizers');
+    if (saved) {
+      setLocalFertilizers(JSON.parse(saved));
+    }
+  }, []);
+
+  const addFertilizer = newFertilizer => {
+    const updatedLocalFertilizers = [...localFertilizers, newFertilizer];
+    setLocalFertilizers(updatedLocalFertilizers);
+    localStorage.setItem('localFertilizers', JSON.stringify(updatedLocalFertilizers));
+    setFertilizers(prev => [...prev, newFertilizer]);
+    setFiltredFertilizers(prev => [...prev, newFertilizer]);
+  };
+
+  const removeFertilizer = fertilizerId => {
+    const updatedLocalFertilizers = localFertilizers.filter(f => f.id !== fertilizerId);
+    setLocalFertilizers(updatedLocalFertilizers);
+    localStorage.setItem('localFertilizers', JSON.stringify(updatedLocalFertilizers));
+    setFertilizers(prev => prev.filter(f => f.id !== fertilizerId));
+    setFiltredFertilizers(prev => prev.filter(f => f.id !== fertilizerId));
+  };
+
   useEffect(() => {
     const getPlantsData = async () => {
       try {
@@ -232,6 +269,34 @@ const CartProvider = ({ children, user }) => {
     getPlantsData();
   }, [cartItems, localPlants.length]);
 
+  useEffect(() => {
+    const mockFertilizers = [
+      {
+        id: 'f1',
+        name: 'Organic Power Bloom',
+        slug: 'organic-power-bloom',
+        price: 15.99,
+        description: 'Perfect for flowering plants. Rich in phosphorus and potassium.',
+        usage: 'Mix 10ml per 1L of water. Apply every 2 weeks.',
+        weight: '500ml',
+        image: null,
+      },
+      {
+        id: 'f2',
+        name: 'Nitrogen Boost',
+        slug: 'nitrogen-boost',
+        price: 12.5,
+        description: 'Ideal for leafy green houseplants. Promotes rapid vegetative growth.',
+        usage: 'Dilute 5ml per 1L of water. Apply once a month.',
+        weight: '250ml',
+        image: null,
+      },
+    ];
+    const allFertilizers = [...mockFertilizers, ...localFertilizers];
+    setFertilizers(allFertilizers);
+    setFiltredFertilizers(allFertilizers);
+  }, [localFertilizers.length]);
+
   const removePlant = plantId => {
     // Remove from local storage
     const updatedLocalPlants = localPlants.filter(p => p.id !== plantId);
@@ -243,6 +308,70 @@ const CartProvider = ({ children, user }) => {
     setFiltredPlants(prev => prev.filter(p => p.id !== plantId));
   };
 
+  const placeOrder = async orderData => {
+    try {
+      if (!user) {
+        alert('Please login to place an order');
+        return false;
+      }
+
+      // Group items by nurseryId
+      const groupedItems = cartItems.reduce((acc, item) => {
+        const nId = item.nurseryId || 'default';
+        if (!acc[nId]) acc[nId] = [];
+        acc[nId].push(item);
+        return acc;
+      }, {});
+
+      const orderPromises = Object.keys(groupedItems).map(nId => {
+        const nurseryItems = groupedItems[nId];
+        const totalAmount = nurseryItems.reduce(
+          (sum, item) => sum + item.plantPrice * (item.quantity || 1),
+          0,
+        );
+
+        const payload = {
+          userId: user.uid,
+          nurseryId: nId === 'default' || !nId ? 1 : Number(nId), // Default to main nursery if none
+          customerName: orderData.name,
+          customerEmail: user.email,
+          customerPhone: orderData.phone,
+          shippingAddress: orderData.address,
+          totalAmount,
+          items: nurseryItems.map(i => ({
+            plantId: i.id || i.plantSlug, // Support various ID formats without underscore dangle
+            plantTitle: i.plantTitle,
+            quantity: i.quantity || 1,
+            price: i.plantPrice,
+          })),
+        };
+
+        return fetch('http://localhost:5000/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      });
+
+      const results = await Promise.all(orderPromises);
+      const allSuccessful = results.every(res => res.ok);
+
+      if (allSuccessful) {
+        setCartItems([]);
+        localStorage.removeItem('cart'); // Cleanup cart if stored
+        return true;
+      }
+
+      const errorData = await results[0].json();
+      alert('Order failed: ' + (errorData.message || 'Unknown error'));
+      return false;
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Network error during checkout');
+      return false;
+    }
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -250,6 +379,8 @@ const CartProvider = ({ children, user }) => {
         addItem,
         addPlant,
         removePlant,
+        addFertilizer,
+        removeFertilizer,
         removeItem,
         clearItemFromCart,
         handleChangeSearch,
@@ -258,10 +389,13 @@ const CartProvider = ({ children, user }) => {
         changeColor,
         clearColor,
         getPlant,
+        getFertilizer,
         cartItemsCount,
         cartTotal,
         plants,
         filtredPlants,
+        fertilizers,
+        filtredFertilizers,
         price,
         maxPrice,
         minPrice,
@@ -272,6 +406,7 @@ const CartProvider = ({ children, user }) => {
         hex3,
         loading,
         user,
+        placeOrder,
       }}
     >
       {children}

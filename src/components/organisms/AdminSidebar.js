@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { NurseryContext } from '../../context/NurseryContext';
+import { CartContext } from '../../context/CartContext';
 
 const StyledSidebar = styled.aside`
   width: 250px;
@@ -93,10 +94,12 @@ const StyledRoleButton = styled.button`
 const AdminSidebar = () => {
   // Simple check to see if we are in admin mode or nursery mode based on URL
   const isNurseryMode = window.location.pathname.includes('/nursery');
-  const { nurseries, currentUserNurseryId } = useContext(NurseryContext);
+  const { user } = useContext(CartContext);
+  const { nurseries } = useContext(NurseryContext);
 
-  // Get current nursery status
-  const myNursery = nurseries.find(n => n.id === currentUserNurseryId);
+  // Get current nursery status based on user email (consistent with dashboard)
+  const myNursery = nurseries.find(n => n.contact === user?.email || n.email === user?.email);
+  const isApproved = myNursery && myNursery.status === 'approved';
   const isRejected = myNursery && myNursery.status === 'rejected';
 
   return (
@@ -131,6 +134,14 @@ const AdminSidebar = () => {
               </StyledIcon>
               Manage All Plants
             </StyledNavLink>
+            <StyledNavLink to="/admin/fertilizers">
+              <StyledIcon>
+                <span role="img" aria-label="fertilizers">
+                  🧪
+                </span>
+              </StyledIcon>
+              Manage All Fertilizers
+            </StyledNavLink>
             <StyledNavLink to="/admin/feedback">
               <StyledIcon>
                 <span role="img" aria-label="feedback">
@@ -160,14 +171,16 @@ const AdminSidebar = () => {
                   </StyledIcon>
                   My Dashboard
                 </StyledNavLink>
-                <StyledNavLink to="/nursery/add-plant">
-                  <StyledIcon>
-                    <span role="img" aria-label="add plant">
-                      ➕
-                    </span>
-                  </StyledIcon>
-                  Add My Plant
-                </StyledNavLink>
+                {isApproved && (
+                  <StyledNavLink to="/nursery/add-plant">
+                    <StyledIcon>
+                      <span role="img" aria-label="add plant">
+                        ➕
+                      </span>
+                    </StyledIcon>
+                    Add My Plant
+                  </StyledNavLink>
+                )}
               </>
             )}
           </>

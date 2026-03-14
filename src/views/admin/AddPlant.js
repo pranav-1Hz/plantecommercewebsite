@@ -162,6 +162,42 @@ const AddPlant = () => {
     }
   };
 
+  // PROTECTION: If nursery is not approved, don't show the form
+  if (!myNursery || myNursery.status !== 'approved') {
+    return (
+      <AdminTemplate>
+        <StyledWrapper style={{ textAlign: 'center', marginTop: '5rem' }}>
+          <Heading main>🔒 Access Restricted</Heading>
+          <div
+            style={{
+              padding: '2rem',
+              background: '#fff3cd',
+              border: '1px solid #ffeeba',
+              borderRadius: '10px',
+              color: '#856404',
+              marginTop: '2rem',
+            }}
+          >
+            <h3>Account Pending Approval</h3>
+            <p style={{ marginTop: '1rem' }}>
+              Your nursery account must be approved by an administrator before you can add new
+              plants to the shop.
+            </p>
+            <Button
+              secondary
+              style={{ marginTop: '2rem' }}
+              onClick={() => {
+                window.location.href = '/nursery';
+              }}
+            >
+              Back to Dashboard
+            </Button>
+          </div>
+        </StyledWrapper>
+      </AdminTemplate>
+    );
+  }
+
   return (
     <AdminTemplate>
       <StyledWrapper>

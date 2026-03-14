@@ -37,6 +37,24 @@ const Nursery = sequelize.define('Nursery', {
     type: DataTypes.STRING,
     defaultValue: 'nursery',
   },
+  totalSales: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.0,
+  },
+  rating: {
+    type: DataTypes.DECIMAL(3, 1),
+    defaultValue: 4.5,
+  },
+  otp: {
+    type: DataTypes.STRING,
+  },
+  otpExpires: {
+    type: DataTypes.DATE,
+  },
+  flowerPotAvailable: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
 });
 
 module.exports = Nursery;

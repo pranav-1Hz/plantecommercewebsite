@@ -20,6 +20,8 @@ const NurseryLogin = lazy(() => import('./NurseryLogin'));
 const OrderSuccess = lazy(() => import('./OrderSuccess'));
 const Feedback = lazy(() => import('./Feedback'));
 const Contact = lazy(() => import('./Contact'));
+const AllFertilizers = lazy(() => import('./AllFertilizers'));
+const SingleFertilizer = lazy(() => import('./SingleFertilizer'));
 
 // Lazy load admin pages
 const Admin = lazy(() => import('./Admin'));
@@ -29,6 +31,8 @@ const PlantManagement = lazy(() => import('./admin/PlantManagement'));
 const NurseryDashboard = lazy(() => import('./admin/NurseryDashboard'));
 const FeedbackList = lazy(() => import('./admin/FeedbackList'));
 const ContactList = lazy(() => import('./admin/ContactList'));
+const AddFertilizer = lazy(() => import('./admin/AddFertilizer'));
+const FertilizerManagement = lazy(() => import('./admin/FertilizerManagement'));
 const Account = lazy(() => import('./Account'));
 
 class Root extends React.Component {
@@ -99,6 +103,8 @@ class Root extends React.Component {
                     <Route exact path="/" component={Home} />
                     <Route exact path="/plants" component={AllPlants} />
                     <Route exact path="/plants/:slug" component={SinglePlant} />
+                    <Route exact path="/fertilizers" component={AllFertilizers} />
+                    <Route exact path="/fertilizers/:slug" component={SingleFertilizer} />
                     <Route exact path="/nursery-register" component={NurseryRegister} />
                     <Route exact path="/login" component={Login} />
                     <Route exact path="/nursery-login" component={NurseryLogin} />
@@ -130,10 +136,22 @@ class Root extends React.Component {
                     />
                     <AdminRoute exact path="/admin/feedback" component={FeedbackList} user={user} />
                     <AdminRoute exact path="/admin/contact" component={ContactList} user={user} />
+                    <AdminRoute
+                      exact
+                      path="/admin/fertilizers"
+                      component={FertilizerManagement}
+                      user={user}
+                    />
 
                     {/* Nursery Routes - temporarily using AdminRoute, should use NurseryRoute */}
                     <AdminRoute exact path="/nursery" component={NurseryDashboard} user={user} />
                     <AdminRoute exact path="/nursery/add-plant" component={AddPlant} user={user} />
+                    <AdminRoute
+                      exact
+                      path="/nursery/add-fertilizer"
+                      component={AddFertilizer}
+                      user={user}
+                    />
                   </Suspense>
                 </Switch>
               </div>
